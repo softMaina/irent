@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "615531003988",
+    "project_id": "irent-dc962",
+    "storage_bucket": "irent-dc962.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:615531003988:android:5797b7c476db502d796dc1",
+        "android_client_info": {
+          "package_name": "com.example.irent"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "615531003988-v596abbjhf6dj0klp08b7lfl9a335c1o.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.irent",
+            "certificate_hash": "955767bbc2fb170df39653029e494f6bd2fd6701"
+          }
+        },
+        {
+          "client_id": "615531003988-8qdr4cnjf3adm1tgf24qdlku0ho5ai93.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAvHsHGvmwiMEhVy7BI0abFSczvK6JwpRA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "615531003988-8qdr4cnjf3adm1tgf24qdlku0ho5ai93.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
