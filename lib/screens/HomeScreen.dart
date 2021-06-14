@@ -80,71 +80,73 @@ class _HomeScreenState extends State<HomeScreen> {
         ));
   }
 
-  gestureGridCells(id,title,category) {
+  gestureGridCells(id, title, category) {
     return Container(
         child: GestureDetector(
-            onTap: () => {_onItemTap(id,category)},
-              child: Card(
-                elevation: 1,
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+      onTap: () => {_onItemTap(id, category)},
+      child: Card(
+        elevation: 2,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                  padding: const EdgeInsets.all(8.0),
+                  alignment: Alignment.center,
+                  child: Image(
+                    image: AssetImage('assets/tractor.jpeg'),
+                    fit: BoxFit.contain,
+                  )),
+              Padding(
+                  padding: EdgeInsets.all(1.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        height: 45,
-                        width: 45,
-                        padding: EdgeInsets.all(3),
-                        child: Center(child: Icon(Icons.favorite_border_sharp)),
-                      ),
                       Padding(
-                          padding: EdgeInsets.all(1.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Padding(
-                                  padding: EdgeInsets.all(3.0),
-                                  child: Text(title,
-                                      textAlign: TextAlign.start,
-                                      style: TextStyle(
-                                          color: Colors.black87,
-                                          fontSize: 14.0))),
-                            ],
-                          ))
+                          padding: EdgeInsets.all(3.0),
+                          child: Text(title.toUpperCase(),
+                              textAlign: TextAlign.start,
+                              style: TextStyle(
+                                  color: Colors.black, fontSize: 14.0,fontWeight: FontWeight.w500))),
+                      Padding(padding: const EdgeInsets.all(3.0), child: Text('@ 300',style: TextStyle(color: Colors.blueAccent),),),
+                      Padding(padding: const EdgeInsets.all(3.0), child: Text('Location Thika',style: TextStyle(color: Colors.blueAccent),),)
                     ],
-                  ),
-                ),
-              ),
-            ));
+                  ))
+            ],
+          ),
+        ),
+      ),
+    ));
   }
 
   categoryTitle(title) {
     return Container(
-      margin: EdgeInsets.only(top:20),
+        margin: EdgeInsets.only(top: 20),
         child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-            padding: EdgeInsets.fromLTRB(0, 10.0, 0, 7.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title.toUpperCase(),
-                    textAlign: TextAlign.left,
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 22.0)),
-                Text(
-                  'TOP ITEMS',
-                  style: TextStyle(
-                      color: Colors.white60,
-                      fontWeight: FontWeight.w400,
-                      fontSize: 18.0),
-                )
-              ],
-            )),
-      ],
-    ));
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+                padding: EdgeInsets.fromLTRB(0, 10.0, 0, 7.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title.toUpperCase(),
+                        textAlign: TextAlign.left,
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 22.0)),
+                    Text(
+                      'TOP ITEMS',
+                      style: TextStyle(
+                          color: Colors.white60,
+                          fontWeight: FontWeight.w400,
+                          fontSize: 18.0),
+                    )
+                  ],
+                )),
+          ],
+        ));
   }
 
   @override
@@ -233,7 +235,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                       doc.data() as Map<String, dynamic>;
                                   return Container(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       categoryTitle(data['category_name']),
                                       StreamBuilder<QuerySnapshot>(
@@ -254,17 +257,21 @@ class _HomeScreenState extends State<HomeScreen> {
                                             }
                                             return Container(
                                               child: new ListView(
-                                                physics: NeverScrollableScrollPhysics(),
+                                                physics:
+                                                    NeverScrollableScrollPhysics(),
                                                 shrinkWrap: true,
-                                                children: snapshot.data.docs.map<
-                                                        Widget>(
-                                                    (DocumentSnapshot document) {
+                                                children: snapshot.data.docs
+                                                    .map<Widget>(
+                                                        (DocumentSnapshot
+                                                            document) {
                                                   Map<String, dynamic> d =
-                                                      document.data()
-                                                          as Map<String, dynamic>;
-                                                  return  Container(
-                                                      child:gestureGridCells(document.id,
-                                                          d["title"], doc.id));
+                                                      document.data() as Map<
+                                                          String, dynamic>;
+                                                  return Container(
+                                                      child: gestureGridCells(
+                                                          document.id,
+                                                          d["title"],
+                                                          doc.id));
                                                 }).toList(),
                                               ),
                                             );

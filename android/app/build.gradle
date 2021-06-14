@@ -38,6 +38,7 @@ android {
         applicationId "com.example.irent"
         minSdkVersion 21
         targetSdkVersion 30
+        multiDexEnabled true
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }

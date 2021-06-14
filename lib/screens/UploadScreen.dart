@@ -1,14 +1,18 @@
+import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../sizeConfig.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 FirebaseFirestore firestore = FirebaseFirestore.instance;
 FirebaseAuth auth = FirebaseAuth.instance;
+
+firebase_storage.FirebaseStorage storage =
+firebase_storage.FirebaseStorage.instance;
 
 class UploadScreen extends StatefulWidget {
   @override
@@ -17,18 +21,21 @@ class UploadScreen extends StatefulWidget {
 
 class _UploadScreenState extends State<UploadScreen> {
   GoogleSignInAccount _currentUser;
-
   GoogleSignIn _googleSignIn = GoogleSignIn(scopes: <String>['email']);
 
   String category = 'gardening';
   CollectionReference posts = FirebaseFirestore.instance.collection("products");
   CollectionReference uploads =
       FirebaseFirestore.instance.collection("uploads");
+
   var categories = new Map<String, String>();
   String item_name;
   int base_price;
   String location;
   String description;
+
+  File _image;
+  final picker = ImagePicker();
 
   @override
   void initState() {
@@ -41,6 +48,18 @@ class _UploadScreenState extends State<UploadScreen> {
     });
     _googleSignIn.signInSilently();
     getCategories();
+  }
+
+  Future getImage() async {
+    final pickedFile = await picker.getImage(source: ImageSource.gallery);
+
+    setState(() {
+      if (pickedFile != null) {
+        _image = File(pickedFile.path);
+      } else {
+        print('No image selected.');
+      }
+    });
   }
 
   getCategories() async {
@@ -56,43 +75,66 @@ class _UploadScreenState extends State<UploadScreen> {
   }
 
   // save data to firestore
-  savePost() {
+  savePost() async {
     String cat;
+    final DateTime now = DateTime.now();
+    final int millSeconds = now.millisecondsSinceEpoch;
+    final String month = now.month.toString();
+    final String date = now.day.toString();
+    final String storageId = (millSeconds.toString());
+    final String today = ('$month-$date');
+    final image = 'posts/' + today + '/' + storageId;
+    String downloadUrl;
+
+    try{
+      firebase_storage.UploadTask task =
+      firebase_storage.FirebaseStorage.instance.ref(image).putFile(_image);
+      firebase_storage.TaskSnapshot snapshot = await task;
+      downloadUrl = await snapshot.ref.getDownloadURL();
+    }catch(e){
+      print(e);
+    }
+
     cat = this.categories.keys.firstWhere(
-        (k) => this.categories[k] == this.category,
+            (k) => this.categories[k] == this.category,
         orElse: () => null);
-    posts.doc(cat).collection("posts").add({
-      'available': true,
-      'title': item_name,
-      'description': description,
-      'location': location,
-      'price': base_price,
-      'posted_by': _currentUser.email
-    }).then((docRef) {
-      uploads.add({
-        'post_category_id':cat,
-        'post_category': category,
-        'post_id': docRef.id,
+
+    if (downloadUrl != null) {
+      posts.doc(cat).collection("posts").add({
+        'available': true,
         'title': item_name,
         'description': description,
         'location': location,
         'price': base_price,
-        'posted_by': _currentUser.email
+        'posted_by': _currentUser.email,
+        'image': downloadUrl
+      }).then((docRef) {
+        uploads.add({
+          'post_category_id': cat,
+          'post_category': category,
+          'post_id': docRef.id,
+          'title': item_name,
+          'description': description,
+          'location': location,
+          'price': base_price,
+          'posted_by': _currentUser.email,
+          'image': downloadUrl
+        });
+        final snackBar = SnackBar(
+          backgroundColor: Colors.greenAccent,
+          content: Text('Posted!!'),
+        );
+
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      }).catchError((error) {
+        final snackBar = SnackBar(
+          backgroundColor: Colors.redAccent,
+          content: Text('Failed To Post'),
+        );
+
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
       });
-      final snackBar = SnackBar(
-        backgroundColor: Colors.greenAccent,
-        content: Text('Posted!!'),
-      );
-
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-    }).catchError((error){
-      final snackBar = SnackBar(
-        backgroundColor: Colors.redAccent,
-        content: Text('Failed To Post'),
-      );
-
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-    });
+    }
   }
 
   @override
@@ -105,7 +147,7 @@ class _UploadScreenState extends State<UploadScreen> {
         title: Text('Rent Out An Item'),
         elevation: 0,
       ),
-      body:  SingleChildScrollView(
+      body: SingleChildScrollView(
         child: Center(
           child: Container(
             margin: EdgeInsets.fromLTRB(0, 20, 0, 20),
@@ -116,13 +158,19 @@ class _UploadScreenState extends State<UploadScreen> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Container(
-                    margin: EdgeInsets.only(bottom: 10),
-                    child: Text('Select Category', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 20),)
-                  ),
+                      margin: EdgeInsets.only(bottom: 10),
+                      child: Text(
+                        'Select Category',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 20),
+                      )),
                   Container(
                       margin: EdgeInsets.only(bottom: 10),
                       width: MediaQuery.of(context).size.width * 0.8,
-                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 10, vertical: 7),
                       decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(3)),
@@ -135,7 +183,9 @@ class _UploadScreenState extends State<UploadScreen> {
                           ),
                           iconSize: 36,
                           elevation: 0,
-                          style: TextStyle(color: Theme.of(context).backgroundColor, fontSize: 24),
+                          style: TextStyle(
+                              color: Theme.of(context).backgroundColor,
+                              fontSize: 24),
                           underline: Container(
                               height: 2, color: Theme.of(context).buttonColor),
                           onChanged: (String newValue) {
@@ -151,162 +201,162 @@ class _UploadScreenState extends State<UploadScreen> {
                             return DropdownMenuItem<String>(
                                 value: value, child: Text(value));
                           }).toList())),
+
                   Container(
-                    child: Column(
-                      children: [
-                        Container(
-                            decoration: BoxDecoration(
-                                border: Border.all(color: Colors.blueAccent)
+                      child: Column(children: [
+                        // Pick an image from gallery
+
+                    GestureDetector(
+                      onTap: () {
+                        getImage();
+                      },
+                      child: Container(
+                          decoration: BoxDecoration(
+                              border: Border.all(color: Colors.blueAccent)),
+                          height: 200,
+                          margin: EdgeInsets.all(10),
+                          child: _image == null ? Center(
+                              child: Container(
+                            height: 100,
+                            width: 100,
+                            child: Icon(
+                              Icons.camera_alt,
+                              color: Colors.white,
+                              size: 50,
                             ),
-                            height: 200,
-                            margin: EdgeInsets.all(10),
-                            child: Center(
-                                child: Container(
-                                  height: 100,
-                                  width: 100,
-
-                                  child: Icon(
-                                    Icons.camera_alt,
-                                    color: Colors.white,
-                                    size: 50,
-                                  ),
-                                ))),
-                        Container(
-                            margin: EdgeInsets.only(bottom: 10),
-                            child: Center(
-                                child: SizedBox(
-                                  width: 1000,
-                                  height: 56,
-                                  child: TextFormField(
-                                    keyboardType: TextInputType.name,
-                                    decoration: InputDecoration(
-                                      border: new OutlineInputBorder(
-                                        borderRadius: const BorderRadius.all(
-                                          const Radius.circular(5.0),
-                                        ),
-                                        borderSide: BorderSide(
-                                          width: 0,
-                                          style: BorderStyle.none,
-                                        ),
-                                      ),
-                                      fillColor: Colors.white,
-                                      filled: true,
-                                      labelText: "Item Name",
-                                      labelStyle: TextStyle(fontSize: 20),
-                                      isDense: true,
-                                      contentPadding: EdgeInsets.all(20.0),
-                                    ),
-                                    onChanged: (text) {
-                                      setState(() {
-                                        item_name = text;
-                                      });
-                                    },
-                                  ),
-
-                                ))),
-                        Container(
-                            margin: EdgeInsets.only(bottom: 10),
-                            child: Center(
-                                child: SizedBox(
-                                  width: 1000,
-                                  height: 56,
-                                  child: TextFormField(
-                                    keyboardType: TextInputType.number,
-                                    decoration: InputDecoration(
-                                      border: new OutlineInputBorder(
-                                        borderRadius: const BorderRadius.all(
-                                          const Radius.circular(5.0),
-                                        ),
-                                        borderSide: BorderSide(
-                                          width: 0,
-                                          style: BorderStyle.none,
-                                        ),
-                                      ),
-                                      fillColor: Colors.white,
-                                      filled: true,
-                                      labelText: "Base Price",
-                                      labelStyle: TextStyle(fontSize: 20),
-                                      isDense: true,
-                                      contentPadding: EdgeInsets.all(20.0),
-
-                                    ),
-                                    onChanged: (text) {
-                                      setState(() {
-                                        base_price = int.parse(text);
-                                      });
-                                    },
-                                  ),
-                                ))),
-                        Container(
-                            margin: EdgeInsets.only(bottom: 10),
-                            child: Center(
-                                child: SizedBox(
-                                  width: 1000,
-                                  height: 56,
-                                  child: TextFormField(
-                                    keyboardType: TextInputType.name,
-                                    decoration: InputDecoration(
-                                      border: new OutlineInputBorder(
-                                        borderRadius: const BorderRadius.all(
-                                          const Radius.circular(5.0),
-                                        ),
-                                        borderSide: BorderSide(
-                                          width: 0,
-                                          style: BorderStyle.none,
-                                        ),
-                                      ),
-                                      fillColor: Colors.white,
-                                      filled: true,
-                                      labelText: "Location Of Item",
-                                      labelStyle: TextStyle(fontSize: 20),
-                                      isDense: true,
-                                      contentPadding: EdgeInsets.all(20.0),
-                                    ),
-                                    onChanged: (text) {
-                                      setState(() {
-                                        location = text;
-                                      });
-                                    },
-                                  ),
-                                ))),
-
-                        Container(
-                            margin: EdgeInsets.only(bottom: 10),
-                            child: Center(
-                                child: SizedBox(
-                                  width: 1000,
-                                  height: 56,
-                                  child: TextFormField(
-                                    keyboardType: TextInputType.name,
-                                    decoration: InputDecoration(
-                                      border: new OutlineInputBorder(
-                                        borderRadius: const BorderRadius.all(
-                                          const Radius.circular(5.0),
-                                        ),
-                                        borderSide: BorderSide(
-                                          width: 0,
-                                          style: BorderStyle.none,
-                                        ),
-                                      ),
-                                      fillColor: Colors.white,
-                                      filled: true,
-                                      labelText: "Description",
-                                      labelStyle: TextStyle(fontSize: 20),
-                                      isDense: true,
-                                      contentPadding: EdgeInsets.all(20.0),
-                                    ),
-                                    onChanged: (text) {
-                                      setState(() {
-                                        description = text;
-                                      });
-                                    },
-                                  ),
-                                ))),
-                      ]
-                    )
-                  ),
-
-
+                          )): Image.file(_image)
+                      ),
+                    ),
+                    // end of image picker
+                    Container(
+                        margin: EdgeInsets.only(bottom: 10),
+                        child: Center(
+                            child: SizedBox(
+                          width: 1000,
+                          height: 56,
+                          child: TextFormField(
+                            keyboardType: TextInputType.name,
+                            decoration: InputDecoration(
+                              border: new OutlineInputBorder(
+                                borderRadius: const BorderRadius.all(
+                                  const Radius.circular(5.0),
+                                ),
+                                borderSide: BorderSide(
+                                  width: 0,
+                                  style: BorderStyle.none,
+                                ),
+                              ),
+                              fillColor: Colors.white,
+                              filled: true,
+                              labelText: "Item Name",
+                              labelStyle: TextStyle(fontSize: 20),
+                              isDense: true,
+                              contentPadding: EdgeInsets.all(20.0),
+                            ),
+                            onChanged: (text) {
+                              setState(() {
+                                item_name = text;
+                              });
+                            },
+                          ),
+                        ))),
+                    Container(
+                        margin: EdgeInsets.only(bottom: 10),
+                        child: Center(
+                            child: SizedBox(
+                          width: 1000,
+                          height: 56,
+                          child: TextFormField(
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                              border: new OutlineInputBorder(
+                                borderRadius: const BorderRadius.all(
+                                  const Radius.circular(5.0),
+                                ),
+                                borderSide: BorderSide(
+                                  width: 0,
+                                  style: BorderStyle.none,
+                                ),
+                              ),
+                              fillColor: Colors.white,
+                              filled: true,
+                              labelText: "Base Price",
+                              labelStyle: TextStyle(fontSize: 20),
+                              isDense: true,
+                              contentPadding: EdgeInsets.all(20.0),
+                            ),
+                            onChanged: (text) {
+                              setState(() {
+                                base_price = int.parse(text);
+                              });
+                            },
+                          ),
+                        ))),
+                    Container(
+                        margin: EdgeInsets.only(bottom: 10),
+                        child: Center(
+                            child: SizedBox(
+                          width: 1000,
+                          height: 56,
+                          child: TextFormField(
+                            keyboardType: TextInputType.name,
+                            decoration: InputDecoration(
+                              border: new OutlineInputBorder(
+                                borderRadius: const BorderRadius.all(
+                                  const Radius.circular(5.0),
+                                ),
+                                borderSide: BorderSide(
+                                  width: 0,
+                                  style: BorderStyle.none,
+                                ),
+                              ),
+                              fillColor: Colors.white,
+                              filled: true,
+                              labelText: "Location Of Item",
+                              labelStyle: TextStyle(fontSize: 20),
+                              isDense: true,
+                              contentPadding: EdgeInsets.all(20.0),
+                            ),
+                            onChanged: (text) {
+                              setState(() {
+                                location = text;
+                              });
+                            },
+                          ),
+                        ))),
+                    Container(
+                        margin: EdgeInsets.only(bottom: 10),
+                        child: Center(
+                            child: SizedBox(
+                          width: 1000,
+                          height: 56,
+                          child: TextFormField(
+                            keyboardType: TextInputType.name,
+                            decoration: InputDecoration(
+                              border: new OutlineInputBorder(
+                                borderRadius: const BorderRadius.all(
+                                  const Radius.circular(5.0),
+                                ),
+                                borderSide: BorderSide(
+                                  width: 0,
+                                  style: BorderStyle.none,
+                                ),
+                              ),
+                              fillColor: Colors.white,
+                              filled: true,
+                              labelText: "Description",
+                              labelStyle: TextStyle(fontSize: 20),
+                              isDense: true,
+                              contentPadding: EdgeInsets.all(20.0),
+                            ),
+                            onChanged: (text) {
+                              setState(() {
+                                description = text;
+                              });
+                            },
+                          ),
+                        ))),
+                  ])),
                   SizedBox(
                       width: double.infinity,
                       height: 57,
