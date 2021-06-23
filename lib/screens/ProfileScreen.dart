@@ -5,6 +5,7 @@ import 'package:irent/screens/SignupScreen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:irent/screens/ViewBidReport.dart';
 
 import 'RootPage.dart';
 
@@ -32,40 +33,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
       setState(() {
         _currentUser = account;
       });
-      print(_currentUser);
     });
     _googleSignIn.signInSilently();
-    getMyUploads();
   }
 
   Future<void> _handleSignOut() {
     _googleSignIn.disconnect();
     Navigator.push(
         context, MaterialPageRoute(builder: (context) => SignupScreen()));
-  }
-
-  getMyBids() async {
-    // check collection for bids /bids/bid_id/docs/ {item_title, bid_price, price, date, item_id, item_pic}
-    await mybids
-        .where('bid_by', isEqualTo: _currentUser)
-        .get()
-        .then((QuerySnapshot querySnapshot) {
-      querySnapshot.docs.forEach((doc) {
-        print(doc.id);
-      });
-    });
-  }
-
-  getMyUploads() async {
-    // check collection for my uploads /uploads/user_email/{doc_id, doc_price}
-    await myuploads
-        .where('posted_by', isEqualTo: _currentUser)
-        .get()
-        .then((QuerySnapshot querySnapshot) {
-      querySnapshot.docs.forEach((doc) {
-        print(doc.id);
-      });
-    });
   }
 
   profile() {
@@ -128,6 +103,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  viewPostReport(id) {
+    // open a page viewing all the bids, deactivate bid
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => ViewBidReport(id)));
+  }
+
   uploads() {
     return Container(
       margin: EdgeInsets.fromLTRB(10, 5, 0, 5),
@@ -136,7 +117,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Expanded(
               child: StreamBuilder<QuerySnapshot>(
                   stream: myuploads
-                      .where('posted_by', isEqualTo: _currentUser.email.toString())
+                      .where('posted_by',
+                          isEqualTo: _currentUser.email.toString())
+                      .orderBy('price', descending: true)
+                      .limitToLast(3)
                       .snapshots(),
                   builder: (BuildContext context,
                       AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -159,21 +143,47 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             mainAxisSize: MainAxisSize.min,
                             children: <Widget>[
                               ListTile(
-                                leading: Icon(Icons.money, color: Colors.lightBlueAccent,),
-                                title: Text(data['title'], style: TextStyle(fontWeight: FontWeight.bold),),
-                                subtitle: Text(data['post_category'].toString()),
+                                leading: Icon(
+                                  Icons.money,
+                                  color: Colors.lightBlueAccent,
+                                ),
+                                title: Text(
+                                  data['title'],
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                subtitle:
+                                    Text(data['post_category'].toString()),
                               ),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: <Widget>[
-                                  Text('@',style: TextStyle(color: Theme.of(context).backgroundColor,fontWeight: FontWeight.bold, fontSize: 25),),
-                                  Text(data['price'].toString(),style: TextStyle(color: Theme.of(context).backgroundColor,fontWeight: FontWeight.w300, fontSize: 18),),
-
+                                  Text(
+                                    '@',
+                                    style: TextStyle(
+                                        color:
+                                            Theme.of(context).backgroundColor,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 25),
+                                  ),
+                                  Text(
+                                    data['price'].toString(),
+                                    style: TextStyle(
+                                        color:
+                                            Theme.of(context).backgroundColor,
+                                        fontWeight: FontWeight.w300,
+                                        fontSize: 18),
+                                  ),
                                   const SizedBox(width: 8),
-                                  TextButton(
-                                    child: const Text('DEACTIVATE POST', style: TextStyle(color: Colors.redAccent),),
+                                  ElevatedButton(
+                                    child: const Text(
+                                      'View Report',
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w300, fontSize: 18),
+                                    ),
                                     onPressed: () {
                                       /* ... */
+                                      viewPostReport(doc.id);
                                     },
                                   ),
                                   const SizedBox(width: 8),
@@ -198,8 +208,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Expanded(
               child: StreamBuilder<QuerySnapshot>(
                   stream: mybids
-                      .where('bid_by', isEqualTo:
-                  _currentUser.email.toString())
+                      .where('bid_by', isEqualTo: _currentUser.email.toString())
+                      .orderBy("date")
+                      .limitToLast(3)
                       .snapshots(),
                   builder: (BuildContext context,
                       AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -216,22 +227,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       children: snapshot.data.docs
                           .map<Widget>((DocumentSnapshot doc) {
                         Map<String, dynamic> data =
-                        doc.data() as Map<String, dynamic>;
+                            doc.data() as Map<String, dynamic>;
                         return new Card(
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: <Widget>[
                               ListTile(
-                                leading: Icon(Icons.thumb_up_alt, color: Colors.orange,),
+                                leading: Icon(
+                                  Icons.thumb_up_alt,
+                                  color: Colors.orange,
+                                ),
                                 title: Text(data['post_id']),
-                                subtitle: Text('For ${data['price'].toString()}'),
+                                subtitle:
+                                    Text('For ${data['price'].toString()}'),
                               ),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: <Widget>[
                                   const SizedBox(width: 8),
                                   TextButton(
-                                    child: const Text('CANCEL',style: TextStyle(color: Colors.redAccent)),
+                                    child: const Text('CANCEL',
+                                        style:
+                                            TextStyle(color: Colors.redAccent)),
                                     onPressed: () {
                                       /* ... */
                                     },
@@ -252,7 +269,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   categoryTitle(title) {
     return Container(
-      width: MediaQuery.of(context).size.width * 0.9,
+        width: MediaQuery.of(context).size.width * 0.9,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -267,9 +284,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             color: Colors.white,
                             fontWeight: FontWeight.w500,
                             fontSize: 18.0)),
-                    Divider(
-                        color: Colors.white
-                    )
+                    Divider(color: Colors.white)
                   ],
                 )),
           ],
@@ -286,7 +301,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         elevation: 0,
         backgroundColor: Theme.of(context).backgroundColor,
       ),
-      body:SingleChildScrollView(
+      body: SingleChildScrollView(
         child: Center(
             child: Column(
           children: [
@@ -294,10 +309,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             categoryTitle("Items You've Posted"),
             uploads(),
             categoryTitle("Items You've Bid On"),
-            purchases()],
+            purchases()
+          ],
         )),
       ),
     );
   }
 }
-

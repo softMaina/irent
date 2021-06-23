@@ -18,32 +18,11 @@ class _HomeScreenState extends State<HomeScreen> {
   CollectionReference posts = FirebaseFirestore.instance.collection("products");
 
   final Stream<QuerySnapshot> _productsStream =
-      FirebaseFirestore.instance.collection('products').snapshots();
+      FirebaseFirestore.instance.collection('products').limit(4).snapshots();
 
   @override
   void initState() {
     super.initState();
-  }
-
-  getPosts() async {
-    await posts.get().then((QuerySnapshot qSnapshot) {
-      qSnapshot.docs.forEach((doc) {
-        print(doc.id);
-        getItems(doc.id);
-      });
-    }).catchError((error) => {print(error)});
-  }
-
-  getItems(id) async {
-    await posts
-        .doc(id)
-        .collection("posts")
-        .get()
-        .then((QuerySnapshot qSnapshot) {
-      qSnapshot.docs.forEach((doc) {
-        print(doc['title']);
-      });
-    });
   }
 
   _onItemTap(String id, String category) async {
@@ -93,19 +72,19 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                  padding: const EdgeInsets.all(8.0),
-                  alignment: Alignment.center,
-                  child: Stack(
-                    children: <Widget>[
-                      Center(child: CircularProgressIndicator()),
-                      Center(
-                        child: FadeInImage.memoryNetwork(
-                          placeholder: kTransparentImage,
-                          image: image,
-                        ),
+                padding: const EdgeInsets.all(8.0),
+                alignment: Alignment.center,
+                child: Stack(
+                  children: <Widget>[
+                    Center(child: CircularProgressIndicator()),
+                    Center(
+                      child: FadeInImage.memoryNetwork(
+                        placeholder: kTransparentImage,
+                        image: image,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
+                ),
               ),
               Padding(
                   padding: EdgeInsets.all(1.0),
@@ -117,9 +96,23 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: Text(title.toUpperCase(),
                               textAlign: TextAlign.start,
                               style: TextStyle(
-                                  color: Colors.black, fontSize: 14.0,fontWeight: FontWeight.w500))),
-                      Padding(padding: const EdgeInsets.all(3.0), child: Text('@ 300',style: TextStyle(color: Colors.blueAccent),),),
-                      Padding(padding: const EdgeInsets.all(3.0), child: Text('Location Thika',style: TextStyle(color: Colors.blueAccent),),)
+                                  color: Colors.black,
+                                  fontSize: 14.0,
+                                  fontWeight: FontWeight.w500))),
+                      Padding(
+                        padding: const EdgeInsets.all(3.0),
+                        child: Text(
+                          '@ 300',
+                          style: TextStyle(color: Colors.blueAccent),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(3.0),
+                        child: Text(
+                          'Location Thika',
+                          style: TextStyle(color: Colors.blueAccent),
+                        ),
+                      )
                     ],
                   ))
             ],
@@ -224,7 +217,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           )),
                       searchBar(),
                       StreamBuilder<QuerySnapshot>(
-                          stream: _productsStream,
+                          stream: FirebaseFirestore.instance
+                              .collection('products')
+                              .limit(4)
+                              .snapshots(),
                           builder: (BuildContext context,
                               AsyncSnapshot<QuerySnapshot> snapshot) {
                             if (snapshot.hasError) {
@@ -254,6 +250,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                               .collection('products')
                                               .doc(doc.id)
                                               .collection('posts')
+                                              .orderBy("location")
+                                              .limitToLast(4)
                                               .snapshots(),
                                           builder: (BuildContext context,
                                               AsyncSnapshot<QuerySnapshot>
@@ -281,7 +279,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       child: gestureGridCells(
                                                           document.id,
                                                           d["title"],
-                                                          doc.id, d['image']));
+                                                          doc.id,
+                                                          d['image']));
                                                 }).toList(),
                                               ),
                                             );

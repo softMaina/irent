@@ -4,6 +4,7 @@ import 'package:irent/widgets/DefaultButton.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:transparent_image/transparent_image.dart';
 
 class CatalogueScreen extends StatefulWidget {
   String id;
@@ -43,11 +44,22 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
     item = posts.doc(category).collection('posts').doc(id).get();
   }
 
+  checkIfAlreadyBid(){}
+  checkIfItemIsAvailable(){}
+
   bidItem() async {
+    if(this.bid_price == null){
+      final snackBar = SnackBar(
+        backgroundColor: Colors.redAccent,
+        content: Text('No Bid Price Specified'),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      return;
+    }
     await posts.doc(category).collection("posts").doc(id).collection("bids").add({
       'price': this.bid_price,
       'bid_by': _currentUser.email,
-      'date': new DateTime.now()
+      'date': new DateTime.now(),
     }).then((docRef) async {
       // duplicate data to bids collection for easier search
      await bids.add({
@@ -103,7 +115,7 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
                 child: Center(
                   child: Container(
                       decoration: BoxDecoration(
-                          border: Border.all(color: Colors.blueAccent)),
+                          border: Border.all(color: Theme.of(context).backgroundColor)),
                       width: MediaQuery.of(context).size.width * 0.9,
                       height: MediaQuery.of(context).size.width * 1.5,
                       child: Column(
@@ -113,8 +125,17 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
                             margin: EdgeInsets.all(10),
                             decoration: BoxDecoration(
                                 border: Border.all(color: Colors.blueAccent)),
-                            child:
-                                Image(image: AssetImage('assets/tractor.jpeg')),
+                            child:Stack(
+                              children: <Widget>[
+                                Center(child: CircularProgressIndicator()),
+                                Center(
+                                  child: FadeInImage.memoryNetwork(
+                                    placeholder: kTransparentImage,
+                                    image: data['image'],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                           Container(
                             margin: EdgeInsets.all(15),
@@ -126,7 +147,7 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
                                   style: TextStyle(
                                       fontSize: 26,
                                       color: Colors.white,
-                                      fontWeight: FontWeight.bold),
+                                      fontWeight: FontWeight.w600),
                                 )
                               ],
                             ),
@@ -134,8 +155,9 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
                           Container(
                               margin: EdgeInsets.all(8),
                               child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Icon(Icons.location_on_outlined, color: Colors.redAccent, size: 22,),
+                              Icon(Icons.location_on_outlined, color: Theme.of(context).buttonColor, size: 22,),
                               Text(
                                 data['location'],
                                 style:
@@ -146,12 +168,13 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
                           Container(
                             margin: EdgeInsets.all(8),
                             child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text('Ksh  ', style: TextStyle(color: Colors.redAccent, fontSize: 20),),
+                                Text('Ksh ', style: TextStyle(color: Theme.of(context).buttonColor, fontSize: 20),),
                                 Text(
                                   data['price'].toString(),
                                   style: TextStyle(
-                                      color: Theme.of(context).buttonColor,
+                                      color: Colors.white,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 27
                                   ),
