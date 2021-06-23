@@ -1,0 +1,20 @@
+image
+location
+price
+description
+posted_by
+availability
+title
+date
+
+
+
+view bids ->> open bid ->> reward bid (return date, lateness charge, person history, collection place, )
+
+
+Loading Indicators
+
+My rents Page Details
+
+
+Add Limit and order by

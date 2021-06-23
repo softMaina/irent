@@ -3,6 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:transparent_image/transparent_image.dart';
+import 'package:irent/widgets/CircularProgress.dart';
 
 import 'BasketScreen.dart';
 import 'CatalogueScreen.dart';
@@ -80,7 +82,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ));
   }
 
-  gestureGridCells(id, title, category) {
+  gestureGridCells(id, title, category, image) {
     return Container(
         child: GestureDetector(
       onTap: () => {_onItemTap(id, category)},
@@ -93,10 +95,18 @@ class _HomeScreenState extends State<HomeScreen> {
               Container(
                   padding: const EdgeInsets.all(8.0),
                   alignment: Alignment.center,
-                  child: Image(
-                    image: AssetImage('assets/tractor.jpeg'),
-                    fit: BoxFit.contain,
-                  )),
+                  child: Stack(
+                    children: <Widget>[
+                      Center(child: CircularProgressIndicator()),
+                      Center(
+                        child: FadeInImage.memoryNetwork(
+                          placeholder: kTransparentImage,
+                          image: image,
+                        ),
+                      ),
+                    ],
+                  ),
+              ),
               Padding(
                   padding: EdgeInsets.all(1.0),
                   child: Row(
@@ -222,7 +232,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             }
                             if (snapshot.connectionState ==
                                 ConnectionState.waiting) {
-                              return Text("Loading");
+                              return CircularProgress();
                             }
 
                             return Container(
@@ -253,7 +263,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             }
                                             if (snapshot.connectionState ==
                                                 ConnectionState.waiting) {
-                                              return Text("Loading");
+                                              return CircularProgress();
                                             }
                                             return Container(
                                               child: new ListView(
@@ -271,7 +281,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       child: gestureGridCells(
                                                           document.id,
                                                           d["title"],
-                                                          doc.id));
+                                                          doc.id, d['image']));
                                                 }).toList(),
                                               ),
                                             );

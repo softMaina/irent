@@ -7,6 +7,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:google_maps_place_picker/google_maps_place_picker.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 FirebaseFirestore firestore = FirebaseFirestore.instance;
 FirebaseAuth auth = FirebaseAuth.instance;
@@ -17,11 +19,13 @@ firebase_storage.FirebaseStorage.instance;
 class UploadScreen extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => _UploadScreenState();
+  static final kInitialPosition = LatLng(-33.8567844, 151.213108);
 }
 
 class _UploadScreenState extends State<UploadScreen> {
   GoogleSignInAccount _currentUser;
   GoogleSignIn _googleSignIn = GoogleSignIn(scopes: <String>['email']);
+
 
   String category = 'gardening';
   CollectionReference posts = FirebaseFirestore.instance.collection("products");
@@ -33,6 +37,8 @@ class _UploadScreenState extends State<UploadScreen> {
   int base_price;
   String location;
   String description;
+  String error;
+
 
   File _image;
   final picker = ImagePicker();
@@ -48,6 +54,29 @@ class _UploadScreenState extends State<UploadScreen> {
     });
     _googleSignIn.signInSilently();
     getCategories();
+  }
+
+  validateData(){
+    this.location="Nairobi";
+    // Check for errors in the data
+    if(this.location.isEmpty){
+      error="Location Cannot Be Empty";
+      return true;
+    }
+    if(this.base_price.isNaN){
+      error="Price Cannot Be Empty";
+      return true;
+    }
+    if(this.description.isEmpty){
+      error="Description Cannot Be Empty";
+      return true;
+    }
+    if(this.item_name.isEmpty){
+      error="Item Title Cannot Be Empty";
+      return true;
+    }
+
+    return false;
   }
 
   Future getImage() async {
@@ -74,6 +103,22 @@ class _UploadScreenState extends State<UploadScreen> {
     });
   }
 
+  getLocation(){
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) {
+              return PlacePicker(
+                  apiKey: 'AIzaSyAvHsHGvmwiMEhVy7BI0abFSczvK6JwpRA',
+                  initialPosition: UploadScreen.kInitialPosition,
+                  useCurrentLocation: true,
+                  selectInitialPosition: true,
+              );
+            },
+        ),
+    );
+  }
+
   // save data to firestore
   savePost() async {
     String cat;
@@ -85,6 +130,14 @@ class _UploadScreenState extends State<UploadScreen> {
     final String today = ('$month-$date');
     final image = 'posts/' + today + '/' + storageId;
     String downloadUrl;
+
+    if(validateData()){
+      final snackBar = SnackBar(
+        backgroundColor: Colors.greenAccent,
+        content: Text(this.error),
+      );
+      return;
+    }
 
     try{
       firebase_storage.UploadTask task =
@@ -298,31 +351,13 @@ class _UploadScreenState extends State<UploadScreen> {
                             child: SizedBox(
                           width: 1000,
                           height: 56,
-                          child: TextFormField(
-                            keyboardType: TextInputType.name,
-                            decoration: InputDecoration(
-                              border: new OutlineInputBorder(
-                                borderRadius: const BorderRadius.all(
-                                  const Radius.circular(5.0),
-                                ),
-                                borderSide: BorderSide(
-                                  width: 0,
-                                  style: BorderStyle.none,
-                                ),
-                              ),
-                              fillColor: Colors.white,
-                              filled: true,
-                              labelText: "Location Of Item",
-                              labelStyle: TextStyle(fontSize: 20),
-                              isDense: true,
-                              contentPadding: EdgeInsets.all(20.0),
-                            ),
-                            onChanged: (text) {
-                              setState(() {
-                                location = text;
-                              });
+                          child: ElevatedButton(
+                            onPressed: (){
+                              getLocation();
+
                             },
-                          ),
+                            child: Text('Add Location'),
+                          )
                         ))),
                     Container(
                         margin: EdgeInsets.only(bottom: 10),
