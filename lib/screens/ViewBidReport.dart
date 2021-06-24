@@ -62,14 +62,14 @@ class _ViewBidReportState extends State<ViewBidReport> {
       // duplicate data to bids collection for easier search
       final snackBar = SnackBar(
         backgroundColor: Colors.greenAccent,
-        content: Text('Bid Placed Successfully'),
+        content: Text('Item Rented Successfully'),
       );
 
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }).catchError((error){
       final snackBar = SnackBar(
         backgroundColor: Colors.redAccent,
-        content: Text('Bid Failed'),
+        content: Text('Action Failed'),
       );
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     });
@@ -224,7 +224,9 @@ class _ViewBidReportState extends State<ViewBidReport> {
                                             width: double.infinity,
                                             height: 45,
                                             child: ElevatedButton(
-                                              onPressed: () {},
+                                              onPressed: () {
+                                                rewardBid(doc.id, doc["price"], doc["bid_by"]);
+                                              },
                                               child: Text("Award Item To Bidder",style: TextStyle(fontSize: 20),),
                                               style: ButtonStyle(
 

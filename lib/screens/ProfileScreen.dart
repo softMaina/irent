@@ -179,7 +179,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       'View Report',
                                       style: TextStyle(
                                           color: Colors.white,
-                                          fontWeight: FontWeight.w300, fontSize: 18),
+                                          fontWeight: FontWeight.w300,
+                                          fontSize: 18),
                                     ),
                                     onPressed: () {
                                       /* ... */
@@ -210,7 +211,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   stream: mybids
                       .where('bid_by', isEqualTo: _currentUser.email.toString())
                       .orderBy("date")
-                      .limitToLast(3)
+                      .limitToLast(4)
                       .snapshots(),
                   builder: (BuildContext context,
                       AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -228,6 +229,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           .map<Widget>((DocumentSnapshot doc) {
                         Map<String, dynamic> data =
                             doc.data() as Map<String, dynamic>;
+                        // myuploads
+                        //     .where("post_id", isEqualTo: data["post_id"])
+                        //     .get()
+                        //     .then((value) {
+                        //       print(value.size);
+                        // });
                         return new Card(
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
