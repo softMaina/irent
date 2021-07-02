@@ -1,7 +1,7 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -15,9 +15,9 @@ class SellerBids extends StatefulWidget {
 class _SellerBidsState extends State<SellerBids> {
   GoogleSignInAccount _currentUser;
   CollectionReference myuploads =
-  FirebaseFirestore.instance.collection("uploads");
+      FirebaseFirestore.instance.collection("uploads");
   CollectionReference products =
-  FirebaseFirestore.instance.collection("products");
+      FirebaseFirestore.instance.collection("products");
 
   List<dynamic> results = [];
   GoogleSignIn _googleSignIn = GoogleSignIn(scopes: <String>['email']);
@@ -25,8 +25,7 @@ class _SellerBidsState extends State<SellerBids> {
   @override
   void initState() {
     super.initState();
-    _googleSignIn.onCurrentUserChanged
-        .listen((GoogleSignInAccount account) {
+    _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount account) {
       setState(() {
         _currentUser = account;
       });
@@ -34,9 +33,7 @@ class _SellerBidsState extends State<SellerBids> {
       getPostnBids();
     });
     _googleSignIn.signInSilently();
-
   }
-
 
   getPostnBids() async {
     var bidsMap = new Map<String, dynamic>();
@@ -63,7 +60,6 @@ class _SellerBidsState extends State<SellerBids> {
             setState(() {
               this.results.add(bidsMap);
             });
-
           });
         });
       });
@@ -71,7 +67,7 @@ class _SellerBidsState extends State<SellerBids> {
     print(this.results);
   }
 
- bidCard(category, title, price, bid_price, bid_date) {
+  bidCard(category, title, price, bid_price, bid_date) {
     return Center(
       child: Card(
         child: Column(
@@ -94,9 +90,7 @@ class _SellerBidsState extends State<SellerBids> {
                 Text(
                   '${price} /',
                   style: TextStyle(
-                      color: Theme
-                          .of(context)
-                          .buttonColor,
+                      color: Theme.of(context).buttonColor,
                       fontWeight: FontWeight.bold),
                 ),
                 TextButton(
@@ -125,24 +119,23 @@ class _SellerBidsState extends State<SellerBids> {
   Widget build(BuildContext context) {
     // TODO: implement build
     return Scaffold(
-        backgroundColor: Theme
-            .of(context)
-            .backgroundColor,
+        backgroundColor: Theme.of(context).backgroundColor,
         appBar: AppBar(
-          backgroundColor: Theme
-              .of(context)
-              .backgroundColor,
+          backgroundColor: Theme.of(context).backgroundColor,
           title: Text('Offers For Your Posts'),
           elevation: 0,
         ),
-
         body: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            for(int i = 0; i < this.results.length; i++)
-            bidCard(this.results[i]['category'], this.results[i]["title"], this.results[i]["price"], this.results[i]["bid_price"], this.results[i]["bid_date"])
+            for (int i = 0; i < this.results.length; i++)
+              bidCard(
+                  this.results[i]['category'],
+                  this.results[i]["title"],
+                  this.results[i]["price"],
+                  this.results[i]["bid_price"],
+                  this.results[i]["bid_date"])
           ],
-        )
-    );
+        ));
   }
 }

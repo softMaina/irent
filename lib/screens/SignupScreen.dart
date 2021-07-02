@@ -1,10 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'dart:async';
-import 'dart:convert' show json;
-import "package:http/http.dart" as http;
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:irent/screens/HomeScreen.dart';
 import 'package:irent/screens/RootPage.dart';
 import 'package:irent/sizeConfig.dart';
 
@@ -39,7 +37,8 @@ class _SignupScreenState extends State<SignupScreen> {
   Future<void> _handleSignIn() async {
     try {
       await _googleSignIn.signIn();
-      Navigator.push(context, MaterialPageRoute(builder: (context)=> RootPage()));
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => RootPage()));
     } catch (error) {
       print(error);
     }
@@ -49,10 +48,10 @@ class _SignupScreenState extends State<SignupScreen> {
 
   Widget _buildBody() {
     GoogleSignInAccount user = _currentUser;
-    if (user != null){
+    if (user != null) {
       print(user.email);
       return RootPage();
-    }else {
+    } else {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
@@ -66,10 +65,12 @@ class _SignupScreenState extends State<SignupScreen> {
                 fit: BoxFit.cover,
               ),
             ),
-
           ),
-          const Text("Welcome to iRent", style: TextStyle(
-              color: Colors.white, fontSize: 40, fontWeight: FontWeight.bold),),
+          const Text(
+            "Welcome to iRent",
+            style: TextStyle(
+                color: Colors.white, fontSize: 40, fontWeight: FontWeight.bold),
+          ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               // background color
@@ -77,36 +78,37 @@ class _SignupScreenState extends State<SignupScreen> {
               padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
               textStyle: TextStyle(fontSize: 20),
             ),
-            child: const Text('GOOGLE SIGNIN', style: TextStyle(fontSize: 25),),
+            child: const Text(
+              'GOOGLE SIGNIN',
+              style: TextStyle(fontSize: 25),
+            ),
             onPressed: _handleSignIn,
           ),
         ],
       );
     }
-
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         body: Stack(
-          children: [
-            Container(
-              height: SizeConfig.screenHeight,
-              width: SizeConfig.screenWidth,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/signup.jpg'),
-                  fit: BoxFit.cover,
-                ),
-              ),
-
+      children: [
+        Container(
+          height: SizeConfig.screenHeight,
+          width: SizeConfig.screenWidth,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/signup.jpg'),
+              fit: BoxFit.cover,
             ),
-            ConstrainedBox(
-              constraints: const BoxConstraints.expand(),
-              child: _buildBody(),
-            )
-          ],
-        ));
+          ),
+        ),
+        ConstrainedBox(
+          constraints: const BoxConstraints.expand(),
+          child: _buildBody(),
+        )
+      ],
+    ));
   }
 }

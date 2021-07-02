@@ -1,13 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:transparent_image/transparent_image.dart';
-import 'package:irent/widgets/CircularProgress.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
-
+import 'package:transparent_image/transparent_image.dart';
 
 FirebaseFirestore firestore = FirebaseFirestore.instance;
 FirebaseAuth auth = FirebaseAuth.instance;
@@ -39,8 +35,8 @@ class _ViewBidReportState extends State<ViewBidReport> {
     print(this.id);
   }
 
-  rewardBid(id,price,user) async{
-    if(this.date == null){
+  rewardBid(id, price, user) async {
+    if (this.date == null) {
       final snackBar = SnackBar(
         backgroundColor: Colors.redAccent,
         content: Text('No Bid Price Specified'),
@@ -56,8 +52,8 @@ class _ViewBidReportState extends State<ViewBidReport> {
       'rented_by': '',
       'post_id': '',
       'category_id': '',
-      'title':'',
-      'posted_price':''
+      'title': '',
+      'posted_price': ''
     }).then((docRef) async {
       // duplicate data to bids collection for easier search
       final snackBar = SnackBar(
@@ -66,7 +62,7 @@ class _ViewBidReportState extends State<ViewBidReport> {
       );
 
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
-    }).catchError((error){
+    }).catchError((error) {
       final snackBar = SnackBar(
         backgroundColor: Colors.redAccent,
         content: Text('Action Failed'),
@@ -193,43 +189,59 @@ class _ViewBidReportState extends State<ViewBidReport> {
                                                 color: Colors.white70),
                                           ),
                                           Container(
-                                            margin: EdgeInsets.only(top:6),
-                                            width: double.infinity,
-                                            height: 45,
-                                            child: ElevatedButton(
-                                                onPressed: () {
-                                                  DatePicker.showDatePicker(context,
-                                                      showTitleActions: true,
-                                                      minTime: DateTime(2021, 3, 5),
-                                                      maxTime: DateTime(2023, 6, 7), onChanged: (date) {
-                                                        print('change $date');
-                                                      }, onConfirm: (date) {
-                                                        setState(() {
-                                                          this.date=date.toString();
-                                                        });
-                                                      }, currentTime: DateTime.now(), locale: LocaleType.en);
-                                                },
-                                                style: ButtonStyle(
-                                                  backgroundColor:
-                                                  MaterialStateProperty.all<
-                                                      Color>(Theme.of(context).buttonColor),
-                                                ),
-                                                child: Text(
-                                                  date == null ? 'Set Return By Date' : date,
-                                                  style: TextStyle(color: Colors.white, fontSize: 21),
-                                                ))
-                                          ),
+                                              margin: EdgeInsets.only(top: 6),
+                                              width: double.infinity,
+                                              height: 45,
+                                              child: ElevatedButton(
+                                                  onPressed: () {
+                                                    DatePicker.showDatePicker(
+                                                        context,
+                                                        showTitleActions: true,
+                                                        minTime: DateTime(
+                                                            2021, 3, 5),
+                                                        maxTime: DateTime(
+                                                            2023, 6, 7),
+                                                        onChanged: (date) {
+                                                      print('change $date');
+                                                    }, onConfirm: (date) {
+                                                      setState(() {
+                                                        this.date =
+                                                            date.toString();
+                                                      });
+                                                    },
+                                                        currentTime:
+                                                            DateTime.now(),
+                                                        locale: LocaleType.en);
+                                                  },
+                                                  style: ButtonStyle(
+                                                    backgroundColor:
+                                                        MaterialStateProperty
+                                                            .all<Color>(Theme
+                                                                    .of(context)
+                                                                .buttonColor),
+                                                  ),
+                                                  child: Text(
+                                                    date == null
+                                                        ? 'Set Return By Date'
+                                                        : date,
+                                                    style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 21),
+                                                  ))),
                                           Container(
                                             margin: EdgeInsets.only(top: 10),
                                             width: double.infinity,
                                             height: 45,
                                             child: ElevatedButton(
                                               onPressed: () {
-                                                rewardBid(doc.id, doc["price"], doc["bid_by"]);
+                                                rewardBid(doc.id, doc["price"],
+                                                    doc["bid_by"]);
                                               },
-                                              child: Text("Award Item To Bidder",style: TextStyle(fontSize: 20),),
+                                              child: Text(
+                                                "Award Item To Bidder",
+                                                style: TextStyle(fontSize: 20),
+                                              ),
                                               style: ButtonStyle(
-
                                                 backgroundColor:
                                                     MaterialStateProperty.all<
                                                         Color>(Colors.black),

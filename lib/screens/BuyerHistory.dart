@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class BuyerHistory extends StatelessWidget{
+class BuyerHistory extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -14,22 +14,17 @@ class BuyerHistory extends StatelessWidget{
         child: Column(
           // list of all the bids on an item
           children: [
-            Container(
-                child: Text('Item Specs')
-            ),
+            Container(child: Text('Item Specs')),
             Container(
                 child: Column(
-                  children: [
-                    Container(
-                        child: Text('This Item Has 100 bids for 100k by Allan')
-                    )
-                  ],
-                )
-            )
+              children: [
+                Container(
+                    child: Text('This Item Has 100 bids for 100k by Allan'))
+              ],
+            ))
           ],
         ),
       ),
     );
   }
-
 }

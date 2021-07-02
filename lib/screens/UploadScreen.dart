@@ -14,7 +14,7 @@ FirebaseFirestore firestore = FirebaseFirestore.instance;
 FirebaseAuth auth = FirebaseAuth.instance;
 
 firebase_storage.FirebaseStorage storage =
-firebase_storage.FirebaseStorage.instance;
+    firebase_storage.FirebaseStorage.instance;
 
 class UploadScreen extends StatefulWidget {
   @override
@@ -25,7 +25,6 @@ class UploadScreen extends StatefulWidget {
 class _UploadScreenState extends State<UploadScreen> {
   GoogleSignInAccount _currentUser;
   GoogleSignIn _googleSignIn = GoogleSignIn(scopes: <String>['email']);
-
 
   String category = 'gardening';
   CollectionReference posts = FirebaseFirestore.instance.collection("products");
@@ -38,7 +37,6 @@ class _UploadScreenState extends State<UploadScreen> {
   String location;
   String description;
   String error;
-
 
   File _image;
   final picker = ImagePicker();
@@ -56,23 +54,23 @@ class _UploadScreenState extends State<UploadScreen> {
     getCategories();
   }
 
-  validateData(){
-    this.location="Nairobi";
+  validateData() {
+    this.location = "Nairobi";
     // Check for errors in the data
-    if(this.location.isEmpty){
-      error="Location Cannot Be Empty";
+    if (this.location.isEmpty) {
+      error = "Location Cannot Be Empty";
       return true;
     }
-    if(this.base_price.isNaN){
-      error="Price Cannot Be Empty";
+    if (this.base_price.isNaN) {
+      error = "Price Cannot Be Empty";
       return true;
     }
-    if(this.description.isEmpty){
-      error="Description Cannot Be Empty";
+    if (this.description.isEmpty) {
+      error = "Description Cannot Be Empty";
       return true;
     }
-    if(this.item_name.isEmpty){
-      error="Item Title Cannot Be Empty";
+    if (this.item_name.isEmpty) {
+      error = "Item Title Cannot Be Empty";
       return true;
     }
 
@@ -103,19 +101,19 @@ class _UploadScreenState extends State<UploadScreen> {
     });
   }
 
-  getLocation(){
+  getLocation() {
     Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) {
-              return PlacePicker(
-                  apiKey: 'AIzaSyAvHsHGvmwiMEhVy7BI0abFSczvK6JwpRA',
-                  initialPosition: UploadScreen.kInitialPosition,
-                  useCurrentLocation: true,
-                  selectInitialPosition: true,
-              );
-            },
-        ),
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return PlacePicker(
+            apiKey: 'AIzaSyAvHsHGvmwiMEhVy7BI0abFSczvK6JwpRA',
+            initialPosition: UploadScreen.kInitialPosition,
+            useCurrentLocation: true,
+            selectInitialPosition: true,
+          );
+        },
+      ),
     );
   }
 
@@ -131,7 +129,7 @@ class _UploadScreenState extends State<UploadScreen> {
     final image = 'posts/' + today + '/' + storageId;
     String downloadUrl;
 
-    if(validateData()){
+    if (validateData()) {
       final snackBar = SnackBar(
         backgroundColor: Colors.greenAccent,
         content: Text(this.error),
@@ -139,17 +137,17 @@ class _UploadScreenState extends State<UploadScreen> {
       return;
     }
 
-    try{
+    try {
       firebase_storage.UploadTask task =
-      firebase_storage.FirebaseStorage.instance.ref(image).putFile(_image);
+          firebase_storage.FirebaseStorage.instance.ref(image).putFile(_image);
       firebase_storage.TaskSnapshot snapshot = await task;
       downloadUrl = await snapshot.ref.getDownloadURL();
-    }catch(e){
+    } catch (e) {
       print(e);
     }
 
     cat = this.categories.keys.firstWhere(
-            (k) => this.categories[k] == this.category,
+        (k) => this.categories[k] == this.category,
         orElse: () => null);
 
     if (downloadUrl != null) {
@@ -254,10 +252,9 @@ class _UploadScreenState extends State<UploadScreen> {
                             return DropdownMenuItem<String>(
                                 value: value, child: Text(value));
                           }).toList())),
-
                   Container(
                       child: Column(children: [
-                        // Pick an image from gallery
+                    // Pick an image from gallery
 
                     GestureDetector(
                       onTap: () {
@@ -268,17 +265,18 @@ class _UploadScreenState extends State<UploadScreen> {
                               border: Border.all(color: Colors.blueAccent)),
                           height: 200,
                           margin: EdgeInsets.all(10),
-                          child: _image == null ? Center(
-                              child: Container(
-                            height: 100,
-                            width: 100,
-                            child: Icon(
-                              Icons.camera_alt,
-                              color: Colors.white,
-                              size: 50,
-                            ),
-                          )): Image.file(_image)
-                      ),
+                          child: _image == null
+                              ? Center(
+                                  child: Container(
+                                  height: 100,
+                                  width: 100,
+                                  child: Icon(
+                                    Icons.camera_alt,
+                                    color: Colors.white,
+                                    size: 50,
+                                  ),
+                                ))
+                              : Image.file(_image)),
                     ),
                     // end of image picker
                     Container(
@@ -349,16 +347,14 @@ class _UploadScreenState extends State<UploadScreen> {
                         margin: EdgeInsets.only(bottom: 10),
                         child: Center(
                             child: SizedBox(
-                          width: 1000,
-                          height: 56,
-                          child: ElevatedButton(
-                            onPressed: (){
-                              getLocation();
-
-                            },
-                            child: Text('Add Location'),
-                          )
-                        ))),
+                                width: 1000,
+                                height: 56,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    getLocation();
+                                  },
+                                  child: Text('Add Location'),
+                                )))),
                     Container(
                         margin: EdgeInsets.only(bottom: 10),
                         child: Center(

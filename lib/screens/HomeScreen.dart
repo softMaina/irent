@@ -1,12 +1,9 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:transparent_image/transparent_image.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:irent/widgets/CircularProgress.dart';
+import 'package:transparent_image/transparent_image.dart';
 
-import 'BasketScreen.dart';
 import 'CatalogueScreen.dart';
 
 class HomeScreen extends StatefulWidget {

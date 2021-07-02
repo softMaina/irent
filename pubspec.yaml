@@ -45,6 +45,7 @@ dev_dependencies:
   google_maps_place_picker: ^2.0.0-nullsafety.3
   transparent_image: ^2.0.0
   flutter_datetime_picker: ^1.5.1
+  flutter_local_notifications: ^6.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

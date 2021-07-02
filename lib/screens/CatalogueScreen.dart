@@ -1,8 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:irent/widgets/DefaultButton.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:transparent_image/transparent_image.dart';
 
@@ -44,11 +42,11 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
     item = posts.doc(category).collection('posts').doc(id).get();
   }
 
-  checkIfAlreadyBid(){}
-  checkIfItemIsAvailable(){}
+  checkIfAlreadyBid() {}
+  checkIfItemIsAvailable() {}
 
   bidItem() async {
-    if(this.bid_price == null){
+    if (this.bid_price == null) {
       final snackBar = SnackBar(
         backgroundColor: Colors.redAccent,
         content: Text('No Bid Price Specified'),
@@ -56,26 +54,31 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
       return;
     }
-    await posts.doc(category).collection("posts").doc(id).collection("bids").add({
+    await posts
+        .doc(category)
+        .collection("posts")
+        .doc(id)
+        .collection("bids")
+        .add({
       'price': this.bid_price,
       'bid_by': _currentUser.email,
       'date': new DateTime.now(),
     }).then((docRef) async {
       // duplicate data to bids collection for easier search
-     await bids.add({
+      await bids.add({
         'post_category_id': category,
         'post_id': docRef.id,
         'price': this.bid_price,
         'date': new DateTime.now(),
         'bid_by': _currentUser.email
       });
-     final snackBar = SnackBar(
-       backgroundColor: Colors.greenAccent,
-       content: Text('Bid Placed Successfully'),
-     );
+      final snackBar = SnackBar(
+        backgroundColor: Colors.greenAccent,
+        content: Text('Bid Placed Successfully'),
+      );
 
-     ScaffoldMessenger.of(context).showSnackBar(snackBar);
-    }).catchError((error){
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }).catchError((error) {
       final snackBar = SnackBar(
         backgroundColor: Colors.redAccent,
         content: Text('Bid Failed'),
@@ -98,7 +101,6 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
         ),
         body: FutureBuilder<DocumentSnapshot>(
           future: this.item,
-
           builder:
               (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
             if (snapshot.hasError) {
@@ -115,7 +117,8 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
                 child: Center(
                   child: Container(
                       decoration: BoxDecoration(
-                          border: Border.all(color: Theme.of(context).backgroundColor)),
+                          border: Border.all(
+                              color: Theme.of(context).backgroundColor)),
                       width: MediaQuery.of(context).size.width * 0.9,
                       height: MediaQuery.of(context).size.width * 1.5,
                       child: Column(
@@ -125,7 +128,7 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
                             margin: EdgeInsets.all(10),
                             decoration: BoxDecoration(
                                 border: Border.all(color: Colors.blueAccent)),
-                            child:Stack(
+                            child: Stack(
                               children: <Widget>[
                                 Center(child: CircularProgressIndicator()),
                                 Center(
@@ -155,34 +158,42 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
                           Container(
                               margin: EdgeInsets.all(8),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Icon(Icons.location_on_outlined, color: Theme.of(context).buttonColor, size: 22,),
-                              Text(
-                                data['location'],
-                                style:
-                                    TextStyle(fontSize: 24, color: Colors.white),
-                              ),
-                            ],
-                          )),
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Icon(
+                                    Icons.location_on_outlined,
+                                    color: Theme.of(context).buttonColor,
+                                    size: 22,
+                                  ),
+                                  Text(
+                                    data['location'],
+                                    style: TextStyle(
+                                        fontSize: 24, color: Colors.white),
+                                  ),
+                                ],
+                              )),
                           Container(
                             margin: EdgeInsets.all(8),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text('Ksh ', style: TextStyle(color: Theme.of(context).buttonColor, fontSize: 20),),
+                                Text(
+                                  'Ksh ',
+                                  style: TextStyle(
+                                      color: Theme.of(context).buttonColor,
+                                      fontSize: 20),
+                                ),
                                 Text(
                                   data['price'].toString(),
                                   style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,
-                                      fontSize: 27
-                                  ),
+                                      fontSize: 27),
                                 ),
                               ],
                             ),
                           ),
-
                           Container(
                               margin: EdgeInsets.all(8),
                               child: Center(
@@ -208,7 +219,7 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
                                     isDense: true,
                                     contentPadding: EdgeInsets.all(20.0),
                                   ),
-                                  onChanged: (text){
+                                  onChanged: (text) {
                                     setState(() {
                                       bid_price = int.parse(text);
                                     });

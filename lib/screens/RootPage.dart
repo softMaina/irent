@@ -1,12 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:irent/screens/HomeScreen.dart';
 import 'package:irent/screens/ProfileScreen.dart';
 import 'package:irent/screens/SellerBids.dart';
-import 'package:irent/screens/SignupScreen.dart';
 import 'package:irent/screens/UploadScreen.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
 FirebaseAuth auth = FirebaseAuth.instance;
 
