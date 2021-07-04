@@ -5,7 +5,9 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:irent/screens/HomeScreen.dart';
 import 'package:irent/screens/ProfileScreen.dart';
 import 'package:irent/screens/SellerBids.dart';
-import 'package:irent/screens/UploadScreen.dart';
+
+import 'UploadScreen.dart';
+
 
 FirebaseAuth auth = FirebaseAuth.instance;
 
@@ -14,6 +16,7 @@ GoogleSignIn _googleSignIn = GoogleSignIn(
     'email',
   ],
 );
+
 
 class RootPage extends StatefulWidget {
   @override
@@ -110,4 +113,18 @@ class _RootPageState extends State<RootPage> {
   Widget build(BuildContext context) {
     return buildHomeScreen();
   }
+}
+
+class PushNotification {
+  PushNotification({
+    this.title,
+    this.body,
+    this.dataTitle,
+    this.dataBody,
+  });
+
+  String title;
+  String body;
+  String dataTitle;
+  String dataBody;
 }
