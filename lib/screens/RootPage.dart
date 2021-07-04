@@ -8,7 +8,6 @@ import 'package:irent/screens/SellerBids.dart';
 
 import 'UploadScreen.dart';
 
-
 FirebaseAuth auth = FirebaseAuth.instance;
 
 GoogleSignIn _googleSignIn = GoogleSignIn(
@@ -16,7 +15,6 @@ GoogleSignIn _googleSignIn = GoogleSignIn(
     'email',
   ],
 );
-
 
 class RootPage extends StatefulWidget {
   @override

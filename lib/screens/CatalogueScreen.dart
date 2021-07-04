@@ -7,6 +7,7 @@ import 'package:transparent_image/transparent_image.dart';
 class CatalogueScreen extends StatefulWidget {
   String id;
   String category;
+
   CatalogueScreen(this.id, this.category);
 
   @override
@@ -43,6 +44,7 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
   }
 
   checkIfAlreadyBid() {}
+
   checkIfItemIsAvailable() {}
 
   bidItem() async {
