@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:irent/screens/MyRents.dart';
 import 'package:irent/widgets/CircularProgress.dart';
 import 'package:transparent_image/transparent_image.dart';
 
@@ -56,6 +57,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 labelText: 'Search For Items'),
           ),
         ));
+  }
+
+  viewMyRentals() async {
+    await Future.delayed(Duration(milliseconds: 80));
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return MyRents();
+        },
+        fullscreenDialog: true,
+      ),
+    );
   }
 
   gestureGridCells(id, title, category, image) {
@@ -184,7 +198,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               Padding(
                                 padding: EdgeInsets.all(5.0),
                                 child: InkWell(
-                                  onTap: () => {},
+                                  onTap: () => {
+                                    viewMyRentals()
+                                  },
                                   child: Container(
                                     width: 40,
                                     child: Stack(
@@ -192,10 +208,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                       children: <Widget>[
                                         Align(
                                             child: Icon(
-                                          Icons.shopping_basket,
-                                          size: 35,
-                                          color: Theme.of(context).buttonColor,
-                                        )),
+                                              Icons.addchart_outlined,
+                                              color: Theme.of(context).buttonColor,
+                                              size: 45.0,
+                                              semanticLabel: 'Text to announce in accessibility modes',
+                                            ),
+                                        ),
                                         Align(
                                           alignment: Alignment.topRight,
                                           child: Container(
