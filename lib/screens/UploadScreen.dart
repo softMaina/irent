@@ -55,7 +55,6 @@ class _UploadScreenState extends State<UploadScreen> {
   }
 
   validateData() {
-    this.location = "Nairobi";
     // Check for errors in the data
     if (this.location.isEmpty) {
       error = "Location Cannot Be Empty";
@@ -108,6 +107,13 @@ class _UploadScreenState extends State<UploadScreen> {
         builder: (context) {
           return PlacePicker(
             apiKey: 'AIzaSyAvHsHGvmwiMEhVy7BI0abFSczvK6JwpRA',
+            onPlacePicked: (result) {
+              setState(() {
+                this.location = result.name;
+              });
+
+              Navigator.of(context).pop();
+            },
             initialPosition: UploadScreen.kInitialPosition,
             useCurrentLocation: true,
             selectInitialPosition: true,
@@ -353,7 +359,7 @@ class _UploadScreenState extends State<UploadScreen> {
                                   onPressed: () {
                                     getLocation();
                                   },
-                                  child: Text('Add Location'),
+                                  child: Text(this.location != null ? this.location : 'Pick Location',style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),),
                                 )))),
                     Container(
                         margin: EdgeInsets.only(bottom: 10),

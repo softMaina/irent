@@ -98,7 +98,7 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
         backgroundColor: Theme.of(context).backgroundColor,
         appBar: AppBar(
           backgroundColor: Theme.of(context).backgroundColor,
-          title: Text('Bid Here'),
+          title: Text('Place Your Bid'),
           elevation: 0,
         ),
         body: FutureBuilder<DocumentSnapshot>(
@@ -132,7 +132,6 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
                                 border: Border.all(color: Colors.blueAccent)),
                             child: Stack(
                               children: <Widget>[
-                                Center(child: CircularProgressIndicator()),
                                 Center(
                                   child: FadeInImage.memoryNetwork(
                                     placeholder: kTransparentImage,
@@ -259,7 +258,11 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
               );
             }
 
-            return Text("loading");
+            return Center(
+              child: Container(
+                child: CircularProgressIndicator(value: 10,),
+              ),
+            );
           },
         ));
   }

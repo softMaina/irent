@@ -72,7 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  gestureGridCells(id, title, category, image) {
+  gestureGridCells(id, title, category, image, location, price) {
     return Container(
         child: GestureDetector(
       onTap: () => {_onItemTap(id, category)},
@@ -87,7 +87,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 alignment: Alignment.center,
                 child: Stack(
                   children: <Widget>[
-                    Center(child: CircularProgressIndicator()),
                     Center(
                       child: FadeInImage.memoryNetwork(
                         placeholder: kTransparentImage,
@@ -98,30 +97,34 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               Padding(
-                  padding: EdgeInsets.all(1.0),
+                  padding: EdgeInsets.all(5.0),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Padding(
                           padding: EdgeInsets.all(3.0),
-                          child: Text(title.toUpperCase(),
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 14.0,
-                                  fontWeight: FontWeight.w500))),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(title.toUpperCase(),
+                                  textAlign: TextAlign.start,
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 20.0,
+                                      fontWeight: FontWeight.bold)),
+                              Text(
+                                '£ ${price}',
+                                style: TextStyle(color: Colors.blueAccent, fontSize: 16, fontWeight: FontWeight.bold),
+                              )
+                            ],
+                          )),
                       Padding(
                         padding: const EdgeInsets.all(3.0),
                         child: Text(
-                          '@ 300',
-                          style: TextStyle(color: Colors.blueAccent),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(3.0),
-                        child: Text(
-                          'Location Thika',
-                          style: TextStyle(color: Colors.blueAccent),
+                          'In  ${location}',
+                          style: TextStyle(color: Colors.blueAccent, fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                       )
                     ],
@@ -295,7 +298,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                           document.id,
                                                           d["title"],
                                                           doc.id,
-                                                          d['image']));
+                                                          d['image'], d['location'], d['price']));
                                                 }).toList(),
                                               ),
                                             );
