@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:irent/screens/SignupScreen.dart';
 import 'package:irent/screens/ViewBidReport.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 FirebaseFirestore firestore = FirebaseFirestore.instance;
 FirebaseAuth auth = FirebaseAuth.instance;
@@ -70,23 +71,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Chip(
-                              label: Text('available'),
-                              backgroundColor: Colors.greenAccent,
-                              labelStyle: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold),
-                            )
+                            Container(
+                              child: Text('Rating ', style: TextStyle(fontSize: 20, color: Colors.white70),),
+                            ),
+                            RatingBarIndicator(
+                              rating: 4.5,
+                              itemBuilder: (context, index) => Icon(
+                                Icons.star,
+                                color: Colors.amber,
+                              ),
+                              itemCount: 5,
+                              itemSize: 25.0,
+                              direction: Axis.horizontal,
+                            ),
                           ]),
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.6,
-                        child: FlatButton(
-                            color: Colors.redAccent,
+                      Container(
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.deepOrange,
+                            elevation: 1,
+                            padding: EdgeInsets.symmetric(horizontal: 80, vertical: 10)
+                          ),
+
                             onPressed: () {
                               _handleSignOut();
                             },
                             child: Text(
-                              "Logout",
+                              "LOGOUT",
                               style:
                                   TextStyle(color: Colors.white, fontSize: 26),
                             )),
@@ -111,7 +122,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       margin: EdgeInsets.fromLTRB(10, 5, 0, 5),
       child: Row(
         children: [
-          Expanded(
+         _currentUser != null ? Expanded(
               child: StreamBuilder<QuerySnapshot>(
                   stream: myuploads
                       .where('posted_by',
@@ -192,7 +203,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         );
                       }).toList(),
                     );
-                  }))
+                  })) : Container(
+           child: Center(
+             child: Text('Loading Current User'),
+           ),
+         )
         ],
       ),
     );
@@ -203,7 +218,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       margin: EdgeInsets.fromLTRB(10, 5, 0, 5),
       child: Row(
         children: [
-          Expanded(
+       _currentUser != null ?   Expanded(
               child: StreamBuilder<QuerySnapshot>(
                   stream: mybids
                       .where('bid_by', isEqualTo: _currentUser.email.toString())
@@ -265,7 +280,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         );
                       }).toList(),
                     );
-                  }))
+                  })) : Center(
+         child: Container(
+           child: Text('Fetching User Purchases'),
+         ),
+       )
         ],
       ),
     );

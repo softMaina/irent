@@ -125,17 +125,19 @@ class _SellerBidsState extends State<SellerBids> {
           title: Text('Offers For Your Posts'),
           elevation: 0,
         ),
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            for (int i = 0; i < this.results.length; i++)
-              bidCard(
-                  this.results[i]['category'],
-                  this.results[i]["title"],
-                  this.results[i]["price"],
-                  this.results[i]["bid_price"],
-                  this.results[i]["bid_date"])
-          ],
+        body: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              for (int i = 0; i < this.results.length; i++)
+                bidCard(
+                    this.results[i]['category'],
+                    this.results[i]["title"],
+                    this.results[i]["price"],
+                    this.results[i]["bid_price"],
+                    this.results[i]["bid_date"])
+            ],
+          ),
         ));
   }
 }
