@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 FirebaseFirestore firestore = FirebaseFirestore.instance;
 FirebaseAuth auth = FirebaseAuth.instance;
@@ -18,6 +20,8 @@ class _SellerBidsState extends State<SellerBids> {
       FirebaseFirestore.instance.collection("uploads");
   CollectionReference products =
       FirebaseFirestore.instance.collection("products");
+  
+  CollectionReference rents = FirebaseFirestore.instance.collection("rented");
 
   List<dynamic> results = [];
   GoogleSignIn _googleSignIn = GoogleSignIn(scopes: <String>['email']);
@@ -67,16 +71,24 @@ class _SellerBidsState extends State<SellerBids> {
     print(this.results);
   }
 
-  bidCard(category, title, price, bid_price, bid_date) {
+  String convertDateTimeDisplay(String date) {
+    final DateFormat displayFormater = DateFormat('yyyy-MM-dd HH:mm:ss.SSS');
+    final DateFormat serverFormater = DateFormat('dd-MM-yyyy');
+    final DateTime displayDate = displayFormater.parse(date);
+    final String formatted = serverFormater.format(displayDate);
+    return formatted;
+  }
+
+  bidCard(category, title, price, bid_price, bid_date, return_date) {
     return Center(
       child: Card(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             ListTile(
-              leading: Icon(Icons.album),
-              title: Text(title),
-              subtitle: Text('From category: ${category}'),
+              leading: Icon(Icons.album, color: Theme.of(context).buttonColor,size: 30,),
+              title: Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 23),),
+              subtitle: Text('From category: ${category}', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 18),),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -85,23 +97,26 @@ class _SellerBidsState extends State<SellerBids> {
                   'List Price ',
                   style: TextStyle(
                     color: Colors.black54,
+                    fontWeight: FontWeight.w400
                   ),
                 ),
                 Text(
                   '${price} /',
                   style: TextStyle(
                       color: Theme.of(context).buttonColor,
-                      fontWeight: FontWeight.bold),
+                      fontWeight: FontWeight.bold, fontSize: 18),
                 ),
                 TextButton(
-                  child: Text('For Ksh ${bid_price}'),
+                  child: Text('For Ksh ${bid_price}',style: TextStyle(
+                      color: Theme.of(context).backgroundColor,
+                      fontWeight: FontWeight.bold, fontSize: 16)),
                   onPressed: () {
                     /* ... */
                   },
                 ),
                 const SizedBox(width: 8),
-                TextButton(
-                  child: const Text('AWARD'),
+                ElevatedButton(
+                  child: Text( convertDateTimeDisplay(return_date), style: TextStyle(fontWeight: FontWeight.bold),),
                   onPressed: () {
                     /* ... */
                   },
@@ -122,22 +137,43 @@ class _SellerBidsState extends State<SellerBids> {
         backgroundColor: Theme.of(context).backgroundColor,
         appBar: AppBar(
           backgroundColor: Theme.of(context).backgroundColor,
-          title: Text('Offers For Your Posts'),
+          title: Text('Rented Items'),
           elevation: 0,
         ),
-        body: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: <Widget>[
-              for (int i = 0; i < this.results.length; i++)
-                bidCard(
-                    this.results[i]['category'],
-                    this.results[i]["title"],
-                    this.results[i]["price"],
-                    this.results[i]["bid_price"],
-                    this.results[i]["bid_date"])
-            ],
-          ),
-        ));
+        body:  FutureBuilder<QuerySnapshot>(
+              future: rents.get(),
+              builder: (BuildContext context,AsyncSnapshot<QuerySnapshot> snapshot){
+                if (snapshot.hasError) {
+                  return Text("Something went wrong");
+                }
+
+                if (snapshot.connectionState == ConnectionState.done) {
+                  return Container(
+                    child: new ListView(
+                      shrinkWrap: true,
+                      children: snapshot.data.docs.map<Widget>((DocumentSnapshot document){
+                        Map<String, dynamic> d = document.data() as Map<String, dynamic>;
+                        return Container(
+                          child: bidCard(d['title'],d['title'],d['posted_price'],d['price'],d['date'], d['return_date'])
+                      );
+                      }).toList(),
+                    ),
+                  );
+                }
+
+                return Center(
+                  child: Container(
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              }
+            ) ,
+      // Center(
+      //     child: Container(
+      //       child: Text('Fetching User Data..',style: TextStyle(color:Colors.white, fontWeight: FontWeight.bold, fontSize: 21),),
+      //     ),
+      //   ),
+
+        );
   }
 }

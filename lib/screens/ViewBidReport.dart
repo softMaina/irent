@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:transparent_image/transparent_image.dart';
+import 'package:intl/intl.dart';
 
 FirebaseFirestore firestore = FirebaseFirestore.instance;
 FirebaseAuth auth = FirebaseAuth.instance;
@@ -22,8 +23,16 @@ class ViewBidReport extends StatefulWidget {
 class _ViewBidReportState extends State<ViewBidReport> {
   String id;
   String date;
+  String title;
+  String location;
+  String post_category;
+  String posted_by;
+  String image;
+  int initial_price;
+  String category_id;
 
   CollectionReference rented = FirebaseFirestore.instance.collection("rented");
+  CollectionReference uploads = FirebaseFirestore.instance.collection('uploads');
 
   _ViewBidReportState(String id) {
     this.id = id;
@@ -32,10 +41,23 @@ class _ViewBidReportState extends State<ViewBidReport> {
   @override
   void initState() {
     super.initState();
-    print(this.id);
   }
 
-  rewardBid(id, price, user) async {
+  getPostDetails(post_id){
+    uploads.doc(post_id).get().then((DocumentSnapshot snapshot) => {
+      this.setState(() {
+        this.title = snapshot.get('title');
+        this.location = snapshot.get('location');
+        this.posted_by = snapshot.get('posted_by');
+        this.initial_price = snapshot.get('price');
+        this.image = snapshot.get('image');
+        this.post_category = snapshot.get('post_category');
+        this.category_id = snapshot.get('post_category_id');
+      })
+    });
+  }
+
+  rewardBid(id, price, user, post_id) async {
     if (this.date == null) {
       final snackBar = SnackBar(
         backgroundColor: Colors.redAccent,
@@ -44,31 +66,35 @@ class _ViewBidReportState extends State<ViewBidReport> {
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
       return;
     }
-    await rented.add({
-      'price': price,
-      'rented_to': user,
-      'date': new DateTime.now(),
-      'return_date': this.date,
-      'rented_by': '',
-      'post_id': '',
-      'category_id': '',
-      'title': '',
-      'posted_price': ''
-    }).then((docRef) async {
-      // duplicate data to bids collection for easier search
-      final snackBar = SnackBar(
-        backgroundColor: Colors.greenAccent,
-        content: Text('Item Rented Successfully'),
-      );
+    await getPostDetails(post_id);
+    if(this.title != null) {
+      await rented.add({
+        'price': price,
+        'rented_to': user,
+        'date': new DateTime.now(),
+        'return_date': this.date,
+        'rented_from': this.posted_by,
+        'post_id': post_id,
+        'category': this.post_category,
+        'title': this.title,
+        'posted_price': this.initial_price,
+        'category_id':this.category_id
+      }).then((docRef) async {
+        // duplicate data to bids collection for easier search
+        final snackBar = SnackBar(
+          backgroundColor: Colors.greenAccent,
+          content: Text('Item Rented Successfully'),
+        );
 
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-    }).catchError((error) {
-      final snackBar = SnackBar(
-        backgroundColor: Colors.redAccent,
-        content: Text('Action Failed'),
-      );
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-    });
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      }).catchError((error) {
+        final snackBar = SnackBar(
+          backgroundColor: Colors.redAccent,
+          content: Text('Action Failed'),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      });
+    }
   }
 
   @override
@@ -106,7 +132,6 @@ class _ViewBidReportState extends State<ViewBidReport> {
                   children: [
                     Stack(
                       children: <Widget>[
-                        Center(child: CircularProgressIndicator()),
                         Center(
                           child: FadeInImage.memoryNetwork(
                             placeholder: kTransparentImage,
@@ -235,7 +260,7 @@ class _ViewBidReportState extends State<ViewBidReport> {
                                             child: ElevatedButton(
                                               onPressed: () {
                                                 rewardBid(doc.id, doc["price"],
-                                                    doc["bid_by"]);
+                                                    doc["bid_by"],doc['post_id']);
                                               },
                                               child: Text(
                                                 "Award Item To Bidder",
