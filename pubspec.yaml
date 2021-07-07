@@ -48,6 +48,9 @@ dev_dependencies:
   flutter_local_notifications: ^6.0.0
   flutter_rating_bar: ^4.0.0
   intl: ^0.17.0
+  http_auth: ^1.0.0
+  shared_preferences: ^2.0.6
+  webview_flutter: ^2.0.9
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:irent/widgets/makePayment.dart';
 
 class MyRents extends StatefulWidget {
   @override
@@ -91,6 +92,9 @@ class _MyRentsState extends State<MyRents> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
+                // Container(
+                //   child: makePayment(),
+                // ),
                 Container(
                     child: ElevatedButton(
                       style: ButtonStyle(
