@@ -240,46 +240,101 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       children: snapshot.data.docs
                           .map<Widget>((DocumentSnapshot doc) {
                         Map<String, dynamic> data =
-                            doc.data() as Map<String, dynamic>;
-                        // myuploads
-                        //     .where("post_id", isEqualTo: data["post_id"])
-                        //     .get()
-                        //     .then((value) {
-                        //       print(value.size);
-                        // });
-                        return new Card(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              ListTile(
-                                leading: Icon(
-                                  Icons.thumb_up_alt,
-                                  color: Colors.orange,
-                                ),
-                                title: Text(data['post_id']),
-                                subtitle:
-                                    Text('For ${data['price'].toString()}'),
-                              ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
+                        doc.data() as Map<String, dynamic>;
+
+                        return FutureBuilder<QuerySnapshot>(
+                            future: myuploads
+                            .where("post_id", isEqualTo: data["post_id"])
+                            .get(),
+                        builder:
+                        (BuildContext context, AsyncSnapshot<QuerySnapshot> shot) {
+
+                        if (shot.hasError) {
+                        return Text("Something went wrong");
+                        }
+
+                        if (shot.connectionState == ConnectionState.done) {
+                          return ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: shot.data.size,
+                            itemBuilder: (context, index) {
+                              return Column(
                                 children: <Widget>[
-                                  const SizedBox(width: 8),
-                                  TextButton(
-                                    child: const Text('CANCEL',
-                                        style:
-                                            TextStyle(color: Colors.redAccent)),
-                                    onPressed: () {
-                                      /* ... */
-                                    },
-                                  ),
-                                  const SizedBox(width: 8),
+                                  Card(
+                                    color: Colors.greenAccent,
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: <Widget>[
+                                        ListTile(
+                                          leading: Icon(
+                                            Icons.money,
+                                            color: Colors.white,
+                                            size: 24,
+                                          ),
+                                          title: Text(
+                                            shot.data.docs[index].get('title'),
+                                            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 25),
+                                          ),
+                                          subtitle:
+                                          Text(shot.data.docs[index].get('post_category')),
+                                        ),
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.end,
+                                          children: <Widget>[
+                                            Text(
+                                              '@  Ksh',
+                                              style: TextStyle(
+                                                  color:
+                                                  Theme.of(context).backgroundColor,
+                                                  fontWeight: FontWeight.w300,
+                                                  fontSize: 20),
+                                            ),
+                                            Text(
+                                              data['price'].toString(),
+                                              style: TextStyle(
+                                                  color: Colors.red,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 18),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            ElevatedButton(
+                                              style: ButtonStyle(
+                                                backgroundColor: MaterialStateProperty.all(Colors.deepOrangeAccent)
+                                              ),
+                                              child: const Text(
+                                                'Remove Bid',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.w300,
+                                                    fontSize: 18),
+                                              ),
+                                              onPressed: () {
+                                                /* ... */
+                                              },
+                                            ),
+                                            const SizedBox(width: 8),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                  // Widget to display the list of project
                                 ],
-                              ),
-                            ],
+                              );
+                            },
+                          );
+                        }
+
+                        return Center(
+                          child: Container(
+                            child: CircularProgressIndicator(),
                           ),
+                        );
+                        }
                         );
                       }).toList(),
                     );
+
                   })) : Center(
          child: Container(
            child: Text('Fetching User Purchases'),

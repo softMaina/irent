@@ -69,7 +69,7 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
       // duplicate data to bids collection for easier search
       await bids.add({
         'post_category_id': category,
-        'post_id': docRef.id,
+        'post_id': id,
         'price': this.bid_price,
         'date': new DateTime.now(),
         'bid_by': _currentUser.email
