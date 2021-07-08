@@ -261,7 +261,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               return Column(
                                 children: <Widget>[
                                   Card(
-                                    color: Colors.greenAccent,
+                                    color: Colors.lightGreen,
                                     child: Column(
                                       mainAxisSize: MainAxisSize.min,
                                       children: <Widget>[
