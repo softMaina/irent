@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:irent/screens/SignupScreen.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:mpesa_flutter_plugin/mpesa_flutter_plugin.dart';
 
 const AndroidNotificationChannel channel = AndroidNotificationChannel(
   'high_importance_channel', // id
@@ -15,6 +16,9 @@ Future<void> main() async {
   await Firebase.initializeApp();
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
   FlutterLocalNotificationsPlugin();
+
+  MpesaFlutterPlugin.setConsumerKey("Gj8dUdJGNGnhwbUx5zxH2cYikNWNemiN");
+  MpesaFlutterPlugin.setConsumerSecret("TV9H0k2wE3ndLEMw");
 
   await flutterLocalNotificationsPlugin
       .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()

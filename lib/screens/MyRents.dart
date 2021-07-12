@@ -5,6 +5,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:irent/widgets/makePayment.dart';
+import 'package:mpesa_flutter_plugin/mpesa_flutter_plugin.dart';
 
 class MyRents extends StatefulWidget {
   @override
@@ -33,6 +34,7 @@ class _MyRentsState extends State<MyRents> {
   FirebaseFirestore.instance.collection("rented");
 
   CollectionReference mybids = FirebaseFirestore.instance.collection("bids");
+  CollectionReference payments = FirebaseFirestore.instance.collection("payments");
 
   final Stream<QuerySnapshot> _rentStream = FirebaseFirestore.instance.collection('rented').snapshots();
 
@@ -46,6 +48,47 @@ class _MyRentsState extends State<MyRents> {
     });
     _googleSignIn.signInSilently();
     super.initState();
+  }
+
+  recordPayment(data){
+    payments.add(data).then((value) => print('payment inserted in database')).catchError((error){
+      print('an error occured recording payment');
+    });
+  }
+
+  Future<void> lipaNaMpesa() async {
+    dynamic transactionInitialisation;
+    try {
+
+      print('initiating mpesa stk');
+      transactionInitialisation = await MpesaFlutterPlugin.initializeMpesaSTKPush(
+          businessShortCode: "174379",
+          transactionType: TransactionType.CustomerPayBillOnline,
+          amount: 100,
+          partyA:  "254719546525",
+          partyB: "174379",
+          callBackURL: Uri(scheme: "https",
+              host: "mpesa-requestbin.herokuapp.com",
+              path: "/1987v1m1"),
+//This url has been generated from http://mpesa-requestbin.herokuapp.com/?ref=hackernoon.com for test purposes
+          accountReference: "Irent",
+          phoneNumber:  "254719546525",
+          baseUri: Uri(scheme: "https", host: "sandbox.safaricom.co.ke"),
+          transactionDesc: "purchase",
+          passKey: "bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919");
+
+      var result = transactionInitialisation as Map<String, dynamic>;
+
+      if(result.keys.contains("ResponseCode")){
+        print('success');
+      }
+
+      print(result);
+    }
+
+    catch (e) {
+      print("CAUGHT EXCEPTION: " + e.toString());
+    }
   }
 
   Widget itemCard() {
@@ -92,9 +135,17 @@ class _MyRentsState extends State<MyRents> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                // Container(
-                //   child: makePayment(),
-                // ),
+                Container(
+                  child: ElevatedButton(
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(Colors.green)
+                    ),
+                    child: Text('Lipa Na M-Pesa', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
+                    onPressed: (){
+                        lipaNaMpesa();
+                    },
+                  ),
+                ),
                 Container(
                     child: ElevatedButton(
                       style: ButtonStyle(

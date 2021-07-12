@@ -21,6 +21,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       FirebaseFirestore.instance.collection("uploads");
 
   CollectionReference mybids = FirebaseFirestore.instance.collection("bids");
+  CollectionReference users = FirebaseFirestore.instance.collection("users");
 
   GoogleSignIn _googleSignIn = GoogleSignIn(scopes: <String>['email']);
 
@@ -115,6 +116,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     // open a page viewing all the bids, deactivate bid
     Navigator.push(
         context, MaterialPageRoute(builder: (context) => ViewBidReport(id)));
+  }
+
+  updateUserData(){
+    // a person must update user profile
   }
 
   uploads() {
