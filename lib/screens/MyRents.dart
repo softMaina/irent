@@ -59,20 +59,18 @@ class _MyRentsState extends State<MyRents> {
   Future<void> lipaNaMpesa() async {
     dynamic transactionInitialisation;
     try {
-
-      print('initiating mpesa stk');
       transactionInitialisation = await MpesaFlutterPlugin.initializeMpesaSTKPush(
           businessShortCode: "174379",
           transactionType: TransactionType.CustomerPayBillOnline,
           amount: 100,
-          partyA:  "254719546525",
+          partyA:  "254741818156",
           partyB: "174379",
           callBackURL: Uri(scheme: "https",
               host: "mpesa-requestbin.herokuapp.com",
               path: "/1987v1m1"),
 //This url has been generated from http://mpesa-requestbin.herokuapp.com/?ref=hackernoon.com for test purposes
           accountReference: "Irent",
-          phoneNumber:  "254719546525",
+          phoneNumber:  "254741818156",
           baseUri: Uri(scheme: "https", host: "sandbox.safaricom.co.ke"),
           transactionDesc: "purchase",
           passKey: "bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919");
@@ -91,7 +89,7 @@ class _MyRentsState extends State<MyRents> {
     }
   }
 
-  Widget itemCard() {
+  Widget itemCard(title, rented_from, rented_on, return_on, price) {
     return Card(
       margin: EdgeInsets.all(10),
       elevation: 2,
@@ -115,15 +113,19 @@ class _MyRentsState extends State<MyRents> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                          child: Text('Item Title', style: TextStyle(
+                          child: Text(title, style: TextStyle(
                               fontSize: 24, fontWeight: FontWeight.bold),)
                       ),
                       Container(
-                          child: Text('Rented On', style: TextStyle(
+                          child: Text('Rented On ${rented_on.toString()}', style: TextStyle(
                               fontSize: 16, fontWeight: FontWeight.w300),)
                       ),
                       Container(
-                          child: Text('To Be Returned On', style: TextStyle(
+                          child: Text('To Be Returned On ${return_on.toString()}', style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.w300),)
+                      ),
+                      Container(
+                          child: Text('Rented From ${rented_from}', style: TextStyle(
                               fontSize: 16, fontWeight: FontWeight.w300),)
                       ),
                     ],
@@ -140,7 +142,7 @@ class _MyRentsState extends State<MyRents> {
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all(Colors.green)
                     ),
-                    child: Text('Lipa Na M-Pesa', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
+                    child: Text('M-Pesa ${price}', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
                     onPressed: (){
                         lipaNaMpesa();
                     },
@@ -203,7 +205,7 @@ class _MyRentsState extends State<MyRents> {
                   Map<String, dynamic> data = document.data() as Map<
                       String,
                       dynamic>;
-                  return itemCard();
+                  return itemCard(data['title'],data['rented_from'],data['date'],data['return_date'],data['price']);
                 }).toList(),
               );
             }
