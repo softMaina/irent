@@ -1,30 +1,6 @@
-image
-location
-price
-description
-posted_by
-availability
-title
-date
+Implement Updating Profile Data
+Implement Fetching Device ID
+Implement Sending Notification on Bid and Reward and On Payment Received
+Add a page to view a whole list of catalogues
 
-
-
-view bids ->> open bid ->> reward bid (return date, lateness charge, person history, collection place, )
-
-
-Loading Indicators
-
-My rents Page Details
-
-
-Add Ratings To User
-
-Create Cloud functions To Operate On Data
-
-Improve UI
-
-
-Fix Orders Page To Be Dynamic and scrollable
-
-
-Add A Map View
+Learn something about sizes, fonts, and animations
