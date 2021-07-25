@@ -26,7 +26,7 @@ class _UploadScreenState extends State<UploadScreen> {
   GoogleSignInAccount _currentUser;
   GoogleSignIn _googleSignIn = GoogleSignIn(scopes: <String>['email']);
 
-  String category = 'gardening';
+  String category = 'Men';
   CollectionReference posts = FirebaseFirestore.instance.collection("products");
   CollectionReference uploads =
       FirebaseFirestore.instance.collection("uploads");

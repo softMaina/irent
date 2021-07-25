@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:irent/screens/EditProfile.dart';
 import 'package:irent/screens/SignupScreen.dart';
 import 'package:irent/screens/ViewBidReport.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
@@ -36,6 +37,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _googleSignIn.signInSilently();
   }
 
+  updateProfileData(){
+    if(_currentUser != null){
+      users.doc(_currentUser.email).set({
+        'username': _currentUser.displayName,
+        'email': _currentUser.email,
+        'picture':'',
+        'contact':'',
+        'id_no':'',
+        'full_names':''
+      }).then((value) =>{
+        print('Updated profile data')
+      });
+    }
+  }
+
   Future<void> _handleSignOut() {
     _googleSignIn.disconnect();
     Navigator.push(
@@ -44,6 +60,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   profile() {
     if (_currentUser != null) {
+      updateProfileData();
       return Container(
           margin: EdgeInsets.fromLTRB(10, 15, 0, 10),
           child: Row(children: [
@@ -86,6 +103,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               direction: Axis.horizontal,
                             ),
                           ]),
+                      Container(
+                        child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                primary: Colors.cyanAccent,
+                                elevation: 1,
+                                padding: EdgeInsets.symmetric(horizontal: 80, vertical: 5)
+                            ),
+
+                            onPressed: () {
+                              Navigator.push(
+                                  context, MaterialPageRoute(builder: (context) => EditProfile()));
+                            },
+                            child: Text(
+                              "Edit Profile",
+                              style:
+                              TextStyle(color: Theme.of(context).backgroundColor, fontSize: 18),
+                            )),
+                      ),
                       Container(
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(

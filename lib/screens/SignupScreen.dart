@@ -7,6 +7,7 @@ import 'package:irent/screens/RootPage.dart';
 import 'package:irent/sizeConfig.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 GoogleSignIn _googleSignIn = GoogleSignIn(
   // Optional clientId
@@ -24,6 +25,7 @@ class SignupScreen extends StatefulWidget {
 class _SignupScreenState extends State<SignupScreen> {
   GoogleSignInAccount _currentUser;
   String _contactText = '';
+  CollectionReference users = FirebaseFirestore.instance.collection("users");
 
   @override
   void initState() {
@@ -79,8 +81,10 @@ class _SignupScreenState extends State<SignupScreen> {
   Future<void> _handleSignIn() async {
     try {
       await _googleSignIn.signIn();
+      // upload user data to the firestore database
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => RootPage()));
+
     } catch (error) {
       print(error);
     }
