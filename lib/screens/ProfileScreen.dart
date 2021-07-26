@@ -7,6 +7,7 @@ import 'package:irent/screens/EditProfile.dart';
 import 'package:irent/screens/SignupScreen.dart';
 import 'package:irent/screens/ViewBidReport.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 FirebaseFirestore firestore = FirebaseFirestore.instance;
 FirebaseAuth auth = FirebaseAuth.instance;
@@ -23,8 +24,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   CollectionReference mybids = FirebaseFirestore.instance.collection("bids");
   CollectionReference users = FirebaseFirestore.instance.collection("users");
+  CollectionReference tokens = FirebaseFirestore.instance.collection("tokens");
 
   GoogleSignIn _googleSignIn = GoogleSignIn(scopes: <String>['email']);
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
 
   @override
   void initState() {
@@ -37,6 +40,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _googleSignIn.signInSilently();
   }
 
+  _saveDeviceToken() async {
+    // Get the current user
+    String uid = _currentUser.email;
+    // FirebaseUser user = await _auth.currentUser();
+
+    // Get the token for this device
+    String fcmToken = await messaging.getToken();
+
+    // Save it to Firestore
+    if (fcmToken != null) {
+      users
+          .doc(uid)
+          .update({'token':fcmToken});
+
+      await tokens.add({
+        'token': fcmToken,
+        'user': _currentUser.email
+      }).then((value) => {
+      print('saved device token')
+      });
+
+    }
+  }
+
   updateProfileData(){
     if(_currentUser != null){
       users.doc(_currentUser.email).set({
@@ -47,7 +74,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         'id_no':'',
         'full_names':''
       }).then((value) =>{
-        print('Updated profile data')
+        _saveDeviceToken()
       });
     }
   }
