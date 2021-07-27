@@ -127,6 +127,7 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Container(
+                            height: MediaQuery.of(context).size.height * 0.4,
                             margin: EdgeInsets.all(10),
                             decoration: BoxDecoration(
                                 border: Border.all(color: Colors.blueAccent)),

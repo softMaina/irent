@@ -44,16 +44,19 @@ class _ViewBidReportState extends State<ViewBidReport> {
   }
 
   getPostDetails(post_id){
-    uploads.doc(post_id).get().then((DocumentSnapshot snapshot) => {
-      this.setState(() {
-        this.title = snapshot.get('title');
-        this.location = snapshot.get('location');
-        this.posted_by = snapshot.get('posted_by');
-        this.initial_price = snapshot.get('price');
-        this.image = snapshot.get('image');
-        this.post_category = snapshot.get('post_category');
-        this.category_id = snapshot.get('post_category_id');
+    uploads.where('post_id', isEqualTo: post_id).limit(1).get().then((snapshot) => {
+      snapshot.docs.forEach((element) {
+        this.setState(() {
+          this.title = element.get('title');
+          this.location = element.get('location');
+          this.posted_by = element.get('posted_by');
+          this.initial_price = element.get('price');
+          this.image = element.get('image');
+          this.post_category = element.get('post_category');
+          this.category_id = element.get('post_category_id');
+        });
       })
+
     });
   }
 
@@ -107,188 +110,193 @@ class _ViewBidReportState extends State<ViewBidReport> {
         backgroundColor: Theme.of(context).backgroundColor,
         title: Text("Post Report"),
       ),
-      body: Column(
-        children: [
-          Expanded(
-              child: FutureBuilder<DocumentSnapshot>(
-            future:
-                FirebaseFirestore.instance.collection("uploads").doc(id).get(),
-            builder: (BuildContext context,
-                AsyncSnapshot<DocumentSnapshot> snapshot) {
-              if (snapshot.hasError) {
-                return Text("Something went wrong");
-              }
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Container(
+                child: FutureBuilder<DocumentSnapshot>(
+              future:
+                  FirebaseFirestore.instance.collection("uploads").doc(id).get(),
+              builder: (BuildContext context,
+                  AsyncSnapshot<DocumentSnapshot> snapshot) {
+                if (snapshot.hasError) {
+                  return Text("Something went wrong");
+                }
 
-              if (snapshot.hasData && !snapshot.data.exists) {
-                return Text("Document does not exist");
-              }
+                if (snapshot.hasData && !snapshot.data.exists) {
+                  return Text("Document does not exist");
+                }
 
-              if (snapshot.connectionState == ConnectionState.done) {
-                Map<String, dynamic> data =
-                    snapshot.data.data() as Map<String, dynamic>;
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Stack(
-                      children: <Widget>[
-                        Center(
-                          child: FadeInImage.memoryNetwork(
-                            placeholder: kTransparentImage,
-                            image: data['image'],
+                if (snapshot.connectionState == ConnectionState.done) {
+                  Map<String, dynamic> data =
+                      snapshot.data.data() as Map<String, dynamic>;
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Stack(
+                        children: <Widget>[
+                          Center(
+                            child: FadeInImage.memoryNetwork(
+                              placeholder: kTransparentImage,
+                              image: data['image'],
+                            ),
                           ),
+                        ],
+                      ),
+                      Container(
+                        margin: EdgeInsets.all(10),
+                        child: Text(
+                          data["title"],
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 25,
+                              fontWeight: FontWeight.w600),
                         ),
-                      ],
-                    ),
-                    Container(
-                      margin: EdgeInsets.all(10),
-                      child: Text(
-                        data["title"],
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 25,
-                            fontWeight: FontWeight.w600),
                       ),
-                    ),
-                    Container(
-                      margin: EdgeInsets.all(10),
-                      child: Text(
-                        "ksh ${data["price"].toString()}",
-                        style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w400),
+                      Container(
+                        margin: EdgeInsets.all(10),
+                        child: Text(
+                          "ksh ${data["price"].toString()}",
+                          style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w400),
+                        ),
                       ),
-                    ),
 
-                    // Watch For Bids For This Posts
-                    SizedBox(
-                      height: 300,
-                      child: FutureBuilder(
-                          future: FirebaseFirestore.instance
-                              .collection("bids")
-                              .where("post_id", isEqualTo: id)
-                              .get(),
-                          builder: (BuildContext context,
-                              AsyncSnapshot<QuerySnapshot> snapshot) {
-                            if (snapshot.hasError) {
-                              return Text("Something went wrong");
-                            }
+                      // Watch For Bids For This Posts
+                      Container(
+                        child: FutureBuilder(
+                            future: FirebaseFirestore.instance
+                                .collection("bids")
+                                .where("post_id", isEqualTo: data['post_id'])
+                                .get(),
+                            builder: (BuildContext context,
+                                AsyncSnapshot<QuerySnapshot> snapshot) {
+                              if (snapshot.hasError) {
+                                return Text("Something went wrong");
+                              }
 
-                            if (snapshot.hasData) {
-                              final PageController controller =
-                                  PageController(initialPage: 0);
-                              return PageView(
-                                  scrollDirection: Axis.horizontal,
-                                  controller: controller,
-                                  children:
-                                      snapshot.data.docs.map<Widget>((doc) {
-                                    return Container(
-                                      margin: EdgeInsets.all(10),
-                                      padding: EdgeInsets.all(7),
-                                      width: MediaQuery.of(context).size.width *
-                                          0.8,
-                                      height: 100,
-                                      color: Colors.blueAccent,
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            "Bid By: ${doc["bid_by"]}",
-                                            style: TextStyle(
-                                                fontSize: 22,
-                                                fontWeight: FontWeight.w500),
-                                          ),
-                                          Text(
-                                            "@ ${doc["price"].toString()}",
-                                            style: TextStyle(
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                          Text(
-                                            doc["date"].toDate().toString(),
-                                            style: TextStyle(
-                                                color: Colors.white70),
-                                          ),
-                                          Container(
-                                              margin: EdgeInsets.only(top: 6),
-                                              width: double.infinity,
-                                              height: 45,
-                                              child: ElevatedButton(
+                              if (snapshot.hasData) {
+                                final PageController controller =
+                                    PageController(initialPage: 0);
+                                return Container(
+                                  height: 400,
+                                  child: PageView(
+                                      scrollDirection: Axis.horizontal,
+                                      controller: controller,
+                                      children:
+                                          snapshot.data.docs.map<Widget>((doc) {
+
+                                        return Container(
+                                          margin: EdgeInsets.all(10),
+                                          padding: EdgeInsets.all(7),
+                                          width: MediaQuery.of(context).size.width *
+                                              0.8,
+                                          height: 100,
+                                          color: Colors.blueAccent,
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                "Bid By: ${doc["bid_by"]}",
+                                                style: TextStyle(
+                                                    fontSize: 22,
+                                                    fontWeight: FontWeight.w500),
+                                              ),
+                                              Text(
+                                                "@ ${doc["price"].toString()}",
+                                                style: TextStyle(
+                                                    fontSize: 18,
+                                                    fontWeight: FontWeight.bold),
+                                              ),
+                                              Text(
+                                                doc["date"].toDate().toString(),
+                                                style: TextStyle(
+                                                    color: Colors.white70),
+                                              ),
+                                              Container(
+                                                  margin: EdgeInsets.only(top: 6),
+                                                  width: double.infinity,
+                                                  height: 45,
+                                                  child: ElevatedButton(
+                                                      onPressed: () {
+                                                        DatePicker.showDatePicker(
+                                                            context,
+                                                            showTitleActions: true,
+                                                            minTime: DateTime(
+                                                                2021, 3, 5),
+                                                            maxTime: DateTime(
+                                                                2023, 6, 7),
+                                                            onChanged: (date) {
+                                                          print('change $date');
+                                                        }, onConfirm: (date) {
+                                                          setState(() {
+                                                            this.date =
+                                                                date.toString();
+                                                          });
+                                                        },
+                                                            currentTime:
+                                                                DateTime.now(),
+                                                            locale: LocaleType.en);
+                                                      },
+                                                      style: ButtonStyle(
+                                                        backgroundColor:
+                                                            MaterialStateProperty
+                                                                .all<Color>(Theme
+                                                                        .of(context)
+                                                                    .buttonColor),
+                                                      ),
+                                                      child: Text(
+                                                        date == null
+                                                            ? 'Set Return By Date'
+                                                            : date,
+                                                        style: TextStyle(
+                                                            color: Colors.white,
+                                                            fontSize: 21),
+                                                      ))),
+                                              Container(
+                                                margin: EdgeInsets.only(top: 10),
+                                                width: double.infinity,
+                                                height: 45,
+                                                child: ElevatedButton(
                                                   onPressed: () {
-                                                    DatePicker.showDatePicker(
-                                                        context,
-                                                        showTitleActions: true,
-                                                        minTime: DateTime(
-                                                            2021, 3, 5),
-                                                        maxTime: DateTime(
-                                                            2023, 6, 7),
-                                                        onChanged: (date) {
-                                                      print('change $date');
-                                                    }, onConfirm: (date) {
-                                                      setState(() {
-                                                        this.date =
-                                                            date.toString();
-                                                      });
-                                                    },
-                                                        currentTime:
-                                                            DateTime.now(),
-                                                        locale: LocaleType.en);
+                                                    rewardBid(doc.id, doc["price"],
+                                                        doc["bid_by"],data['post_id']);
                                                   },
+                                                  child: Text(
+                                                    "Award Item To Bidder",
+                                                    style: TextStyle(fontSize: 20),
+                                                  ),
                                                   style: ButtonStyle(
                                                     backgroundColor:
-                                                        MaterialStateProperty
-                                                            .all<Color>(Theme
-                                                                    .of(context)
-                                                                .buttonColor),
+                                                        MaterialStateProperty.all<
+                                                            Color>(Colors.black),
                                                   ),
-                                                  child: Text(
-                                                    date == null
-                                                        ? 'Set Return By Date'
-                                                        : date,
-                                                    style: TextStyle(
-                                                        color: Colors.white,
-                                                        fontSize: 21),
-                                                  ))),
-                                          Container(
-                                            margin: EdgeInsets.only(top: 10),
-                                            width: double.infinity,
-                                            height: 45,
-                                            child: ElevatedButton(
-                                              onPressed: () {
-                                                rewardBid(doc.id, doc["price"],
-                                                    doc["bid_by"],doc['post_id']);
-                                              },
-                                              child: Text(
-                                                "Award Item To Bidder",
-                                                style: TextStyle(fontSize: 20),
-                                              ),
-                                              style: ButtonStyle(
-                                                backgroundColor:
-                                                    MaterialStateProperty.all<
-                                                        Color>(Colors.black),
-                                              ),
-                                            ),
-                                          )
-                                        ],
-                                      ),
-                                    );
-                                  }).toList());
-                            }
-                            return Text('Loading');
-                          }),
-                    )
-                  ],
-                );
-              }
+                                                ),
+                                              )
+                                            ],
+                                          ),
+                                        );
+                                      }).toList()),
+                                );
+                              }
+                              return Text('Loading');
+                            }),
+                      )
+                    ],
+                  );
+                }
 
-              return Text("loading");
-            },
-          ))
-        ],
+                return Text("loading");
+              },
+            ))
+          ],
+        ),
       ),
     );
   }

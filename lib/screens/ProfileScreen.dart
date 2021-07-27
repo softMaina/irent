@@ -194,8 +194,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   stream: myuploads
                       .where('posted_by',
                           isEqualTo: _currentUser.email.toString())
-                      .orderBy('price', descending: true)
-                      .limitToLast(3)
+                      // .orderBy('price', descending: true)
+                      // .limit(3)
                       .snapshots(),
                   builder: (BuildContext context,
                       AsyncSnapshot<QuerySnapshot> snapshot) {
