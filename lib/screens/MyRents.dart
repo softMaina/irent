@@ -56,13 +56,13 @@ class _MyRentsState extends State<MyRents> {
     });
   }
 
-  Future<void> lipaNaMpesa() async {
+  Future<void> lipaNaMpesa(price) async {
     dynamic transactionInitialisation;
     try {
       transactionInitialisation = await MpesaFlutterPlugin.initializeMpesaSTKPush(
           businessShortCode: "174379",
           transactionType: TransactionType.CustomerPayBillOnline,
-          amount: 100,
+          amount: double.parse(price),
           partyA:  "254741818156",
           partyB: "174379",
           callBackURL: Uri(scheme: "https",
@@ -144,7 +144,7 @@ class _MyRentsState extends State<MyRents> {
                     ),
                     child: Text('M-Pesa ${price}', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
                     onPressed: (){
-                        lipaNaMpesa();
+                        lipaNaMpesa(price);
                     },
                   ),
                 ),

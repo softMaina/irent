@@ -183,6 +183,8 @@ class _UploadScreenState extends State<UploadScreen> {
         );
 
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        Navigator.pop(context);
+
       }).catchError((error) {
         final snackBar = SnackBar(
           backgroundColor: Colors.redAccent,
