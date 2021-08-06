@@ -270,8 +270,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   .collection('products')
                                                   .doc(doc.id)
                                                   .collection('posts')
-                                                  .orderBy("location")
-                                                  .limitToLast(4)
+                                              .where('available',isEqualTo:true)
                                                   .snapshots(),
                                               builder: (BuildContext context,
                                                   AsyncSnapshot<QuerySnapshot>

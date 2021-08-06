@@ -8,6 +8,8 @@ import 'package:irent/screens/SignupScreen.dart';
 import 'package:irent/screens/ViewBidReport.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:path/path.dart' as Path;
+import 'package:sqflite/sqflite.dart';
 
 FirebaseFirestore firestore = FirebaseFirestore.instance;
 FirebaseAuth auth = FirebaseAuth.instance;
@@ -28,6 +30,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   GoogleSignIn _googleSignIn = GoogleSignIn(scopes: <String>['email']);
   FirebaseMessaging messaging = FirebaseMessaging.instance;
+  bool completed=false;
+  String contact;
 
   @override
   void initState() {
@@ -38,6 +42,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       });
     });
     _googleSignIn.signInSilently();
+    checkUser();
   }
 
   _saveDeviceToken() async {
@@ -111,7 +116,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
-                            fontSize: 27),
+                            fontSize: 22),
                       ),
                       Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -130,6 +135,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               direction: Axis.horizontal,
                             ),
                           ]),
+                      this.completed ?
+                      Container(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              child: Text('Tel: ${this.contact}', style: TextStyle(color: Colors.white, fontSize: 20),),
+                            ),
+                            Row(
+                              children: [
+                                Center(
+                                  child: Icon(Icons.check_circle, size: 20, color: Colors.yellow,),
+                                ),
+                                Center(
+                                  child: Text('Profile Completed', style: TextStyle(color: Colors.white, fontSize: 18),),
+                                )
+                              ],
+                            ),
+                          ],
+                        ),
+                      ) : Container(child: Row(
+                        children: [
+                          Center(
+                            child: Text("Please Complete Profile", style: TextStyle(color: Colors.red, fontSize: 18, fontWeight: FontWeight.w500),),
+                          )
+                        ],
+                      )),
                       Container(
                         child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
@@ -182,6 +214,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   updateUserData(){
     // a person must update user profile
+  }
+  
+  removeItem(id){
+   mybids.doc(id).delete();
+  }
+
+
+  checkUser() async {
+    // full_name, id_no, phone_number, township
+    int count;
+    List<Map> list;
+    var databasePath = await getDatabasesPath();
+    String path = Path.join(databasePath, 'user.db');
+
+    Database database = await openDatabase(path, version: 1);
+
+    await database.transaction((txn) async {
+      list = await txn.rawQuery('SELECT * FROM user');
+    });
+    if(list.length > 0){
+      this.setState(() {
+        this.completed = true;
+        this.contact = list[0]['contact'];
+      });
+    }
   }
 
   uploads() {
@@ -376,7 +433,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                     fontSize: 18),
                                               ),
                                               onPressed: () {
-                                                /* ... */
+                                                removeItem(doc.id);
                                               },
                                             ),
                                             const SizedBox(width: 8),

@@ -9,6 +9,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_place_picker/google_maps_place_picker.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart' as Path;
+import 'package:sqflite/sqflite.dart';
 
 FirebaseFirestore firestore = FirebaseFirestore.instance;
 FirebaseAuth auth = FirebaseAuth.instance;
@@ -40,6 +42,27 @@ class _UploadScreenState extends State<UploadScreen> {
 
   File _image;
   final picker = ImagePicker();
+
+  checkUser() async {
+    int count;
+    var databasePath = await getDatabasesPath();
+
+    String path = Path.join(databasePath, 'user.db');
+
+    Database database = await openDatabase(path, version: 1);
+
+    await database.transaction((txn) async {
+      // List<Map> list = await txn.rawQuery('SELECT * FROM users');
+      count = Sqflite
+          .firstIntValue(await database.rawQuery('SELECT COUNT(*) FROM user'));
+    });
+
+    if(count > 0 ){
+      return true;
+    }else{
+      return false;
+    }
+  }
 
   @override
   void initState() {
@@ -126,6 +149,8 @@ class _UploadScreenState extends State<UploadScreen> {
   // save data to firestore
   savePost() async {
     String cat;
+    // bool userExists = await checkUser();
+    bool userExists = true;
     final DateTime now = DateTime.now();
     final int millSeconds = now.millisecondsSinceEpoch;
     final String month = now.month.toString();
@@ -156,7 +181,7 @@ class _UploadScreenState extends State<UploadScreen> {
         (k) => this.categories[k] == this.category,
         orElse: () => null);
 
-    if (downloadUrl != null) {
+    if (downloadUrl != null && userExists) {
       posts.doc(cat).collection("posts").add({
         'available': true,
         'title': item_name,
@@ -167,6 +192,7 @@ class _UploadScreenState extends State<UploadScreen> {
         'image': downloadUrl
       }).then((docRef) {
         uploads.add({
+          'available': true,
           'post_category_id': cat,
           'post_category': category,
           'post_id': docRef.id,
@@ -181,14 +207,16 @@ class _UploadScreenState extends State<UploadScreen> {
           backgroundColor: Colors.greenAccent,
           content: Text('Posted!!'),
         );
-
+        this.item_name = '';
+        this.description = '';
+        this.location = '';
+        this.base_price = 0;
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
         Navigator.pop(context);
-
       }).catchError((error) {
         final snackBar = SnackBar(
           backgroundColor: Colors.redAccent,
-          content: Text('Failed To Post'),
+          content: Text('Failed To Post. Complete Profile'),
         );
 
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -361,7 +389,14 @@ class _UploadScreenState extends State<UploadScreen> {
                                   onPressed: () {
                                     getLocation();
                                   },
-                                  child: Text(this.location != null ? this.location : 'Pick Location',style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),),
+                                  child: Text(
+                                    this.location != null
+                                        ? this.location
+                                        : 'Pick Location',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 22),
+                                  ),
                                 )))),
                     Container(
                         margin: EdgeInsets.only(bottom: 10),

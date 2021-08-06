@@ -3,6 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:transparent_image/transparent_image.dart';
+import 'package:path/path.dart' as Path;
+import 'package:sqflite/sqflite.dart';
 
 class CatalogueScreen extends StatefulWidget {
   String id;
@@ -30,6 +32,27 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
   CollectionReference posts = FirebaseFirestore.instance.collection("products");
   CollectionReference bids = FirebaseFirestore.instance.collection("bids");
 
+  checkUser() async {
+    // full_name, id_no, phone_number, township
+    int count;
+    var databasePath = await getDatabasesPath();
+    String path = Path.join(databasePath, 'user.db');
+
+    Database database = await openDatabase(path, version: 1);
+
+    await database.transaction((txn) async {
+      // List<Map> list = await txn.rawQuery('SELECT * FROM users');
+     count = Sqflite
+          .firstIntValue(await database.rawQuery('SELECT COUNT(*) FROM user'));
+    });
+
+    if(count > 0 ){
+      return true;
+    }else{
+      return false;
+    }
+  }
+
   @override
   void initState() {
     // TODO: implement initState
@@ -47,11 +70,13 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
 
   checkIfItemIsAvailable() {}
 
+
   bidItem() async {
-    if (this.bid_price == null) {
+    bool userExists = checkUser();
+    if (this.bid_price == null && userExists) {
       final snackBar = SnackBar(
         backgroundColor: Colors.redAccent,
-        content: Text('No Bid Price Specified'),
+        content: Text('Please Complete Profile And Enter Bid Price'),
       );
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
       return;
@@ -72,14 +97,16 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
         'post_id': id,
         'price': this.bid_price,
         'date': new DateTime.now(),
-        'bid_by': _currentUser.email
+        'bid_by': _currentUser.email,
+        'returned': false
       });
       final snackBar = SnackBar(
         backgroundColor: Colors.greenAccent,
         content: Text('Bid Placed Successfully'),
       );
-
+      this.bid_price = 0;
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      Navigator.pop(context);
     }).catchError((error) {
       final snackBar = SnackBar(
         backgroundColor: Colors.redAccent,

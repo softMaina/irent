@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 
 FirebaseFirestore firestore = FirebaseFirestore.instance;
 FirebaseAuth auth = FirebaseAuth.instance;
+CollectionReference posts = FirebaseFirestore.instance.collection("products");
 
 class ViewBidReport extends StatefulWidget {
   String id;
@@ -60,7 +61,13 @@ class _ViewBidReportState extends State<ViewBidReport> {
     });
   }
 
-  rewardBid(id, price, user, post_id) async {
+  markAsUnAvailable(category_id, id){
+    posts.doc(category_id).collection('posts').doc(id).update({
+      'available':false
+    });
+  }
+
+  rewardBid(id, post_category_id, price, user, post_id) async {
     if (this.date == null) {
       final snackBar = SnackBar(
         backgroundColor: Colors.redAccent,
@@ -81,15 +88,17 @@ class _ViewBidReportState extends State<ViewBidReport> {
         'category': this.post_category,
         'title': this.title,
         'posted_price': this.initial_price,
-        'category_id':this.category_id
+        'category_id':this.category_id,
+        'returned':false,
       }).then((docRef) async {
         // duplicate data to bids collection for easier search
         final snackBar = SnackBar(
           backgroundColor: Colors.greenAccent,
           content: Text('Item Rented Successfully'),
         );
-
+        markAsUnAvailable(category_id, post_id);
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
       }).catchError((error) {
         final snackBar = SnackBar(
           backgroundColor: Colors.redAccent,
@@ -265,7 +274,7 @@ class _ViewBidReportState extends State<ViewBidReport> {
                                                 height: 45,
                                                 child: ElevatedButton(
                                                   onPressed: () {
-                                                    rewardBid(doc.id, doc["price"],
+                                                    rewardBid(doc.id, doc['post_category_id'],doc["price"],
                                                         doc["bid_by"],data['post_id']);
                                                   },
                                                   child: Text(
