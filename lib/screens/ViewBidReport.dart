@@ -229,7 +229,7 @@ class _ViewBidReportState extends State<ViewBidReport> {
                                               Container(
                                                 child: Row(
                                                   children: [
-                                                    Text("User Ratings", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),),
+                                                    Text("Recommendation", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),),
                                                     RatingBarIndicator(
                                                       rating: random.nextDouble() * 4.8,
                                                       itemBuilder: (context, index) => Icon(
