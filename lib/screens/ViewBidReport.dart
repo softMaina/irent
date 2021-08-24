@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'dart:math';
 
 FirebaseFirestore firestore = FirebaseFirestore.instance;
 FirebaseAuth auth = FirebaseAuth.instance;
@@ -31,6 +33,7 @@ class _ViewBidReportState extends State<ViewBidReport> {
   String image;
   int initial_price;
   String category_id;
+  Random random = new Random();
 
   CollectionReference rented = FirebaseFirestore.instance.collection("rented");
   CollectionReference uploads = FirebaseFirestore.instance.collection('uploads');
@@ -222,6 +225,23 @@ class _ViewBidReportState extends State<ViewBidReport> {
                                                 style: TextStyle(
                                                     fontSize: 18,
                                                     fontWeight: FontWeight.bold),
+                                              ),
+                                              Container(
+                                                child: Row(
+                                                  children: [
+                                                    Text("User Ratings", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),),
+                                                    RatingBarIndicator(
+                                                      rating: random.nextDouble() * 4.8,
+                                                      itemBuilder: (context, index) => Icon(
+                                                        Icons.star,
+                                                        color: Colors.amber,
+                                                      ),
+                                                      itemCount: 5,
+                                                      itemSize: 25.0,
+                                                      direction: Axis.horizontal,
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
                                               Text(
                                                 doc["date"].toDate().toString(),
