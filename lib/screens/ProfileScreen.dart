@@ -158,7 +158,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ) : Container(child: Row(
                         children: [
                           Center(
-                            child: Text("Please Complete Profile", style: TextStyle(color: Colors.red, fontSize: 18, fontWeight: FontWeight.w500),),
+                            child: Text("Please Complete Profile", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w500),),
                           )
                         ],
                       )),
