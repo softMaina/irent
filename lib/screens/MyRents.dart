@@ -10,20 +10,6 @@ class MyRents extends StatefulWidget {
 }
 
 class _MyRentsState extends State<MyRents> {
-  // List Items I Have Rented
-
-  /*
-  * item title
-  * item description
-  * rented on
-  * rented from
-  * return date
-  * */
-
-  // actions
-  /*
-  *  mark item as returned
-  * */
 
   GoogleSignInAccount _currentUser;
   CollectionReference myrents = FirebaseFirestore.instance.collection("rented");
@@ -58,15 +44,17 @@ class _MyRentsState extends State<MyRents> {
     });
   }
 
-  Future<void> lipaNaMpesa(price) async {
+  lipaNaMpesa(price) async {
+
     dynamic transactionInitialisation;
     try {
       transactionInitialisation =
           await MpesaFlutterPlugin.initializeMpesaSTKPush(
               businessShortCode: "174379",
               transactionType: TransactionType.CustomerPayBillOnline,
-              amount: double.parse(price),
-              partyA: "254741818156",
+              amount: price.toDouble(),
+                       partyA: "254741818156",
+              // partyA: "254702339636",
               partyB: "174379",
               callBackURL: Uri(
                   scheme: "https",
@@ -74,18 +62,18 @@ class _MyRentsState extends State<MyRents> {
                   path: "/1987v1m1"),
 //This url has been generated from http://mpesa-requestbin.herokuapp.com/?ref=hackernoon.com for test purposes
               accountReference: "Irent",
+              // phoneNumber: "254702339636",
               phoneNumber: "254741818156",
               baseUri: Uri(scheme: "https", host: "sandbox.safaricom.co.ke"),
               transactionDesc: "purchase",
               passKey:
                   "bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919");
 
-      var result = transactionInitialisation as Map<String, dynamic>;
-
+      var result = await transactionInitialisation as Map<String, dynamic>;
+      //
       if (result.keys.contains("ResponseCode")) {
         print('success');
       }
-
       print(result);
     } catch (e) {
       print("CAUGHT EXCEPTION: " + e.toString());

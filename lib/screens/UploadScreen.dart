@@ -39,6 +39,7 @@ class _UploadScreenState extends State<UploadScreen> {
   String location;
   String description;
   String error;
+  bool posting = false;
 
   File _image;
   final picker = ImagePicker();
@@ -148,6 +149,9 @@ class _UploadScreenState extends State<UploadScreen> {
 
   // save data to firestore
   savePost() async {
+    setState(() {
+      posting = true;
+    });
     String cat;
     // bool userExists = await checkUser();
     bool userExists = true;
@@ -218,7 +222,9 @@ class _UploadScreenState extends State<UploadScreen> {
           backgroundColor: Colors.redAccent,
           content: Text('Failed To Post. Complete Profile'),
         );
-
+        setState(() {
+          posting = false;
+        });
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
       });
     }
@@ -439,12 +445,12 @@ class _UploadScreenState extends State<UploadScreen> {
                               borderRadius: BorderRadius.circular(5)),
                           color: Theme.of(context).buttonColor,
                           onPressed: () {
-                            savePost();
+                            posting ? null : savePost();
                           },
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text("Post",
+                              Text(posting ? "Hold on..." : "Post",
                                   style: TextStyle(
                                     fontSize: 18,
                                     color: Colors.white,

@@ -33,7 +33,6 @@ class _SellerBidsState extends State<SellerBids> {
       setState(() {
         _currentUser = account;
       });
-      print(_currentUser.email);
       getPostnBids();
     });
     _googleSignIn.signInSilently();
@@ -140,8 +139,8 @@ class _SellerBidsState extends State<SellerBids> {
           title: Text('Rented Items'),
           elevation: 0,
         ),
-        body:  FutureBuilder<QuerySnapshot>(
-              future: rents.get(),
+        body: _currentUser != null ? FutureBuilder<QuerySnapshot>(
+              future: rents.where('rented_from', isEqualTo: _currentUser.email.toString()).get(),
               builder: (BuildContext context,AsyncSnapshot<QuerySnapshot> snapshot){
                 if (snapshot.hasError) {
                   return Text("Something went wrong");
@@ -161,13 +160,18 @@ class _SellerBidsState extends State<SellerBids> {
                   );
                 }
 
+
                 return Center(
                   child: Container(
                     child: CircularProgressIndicator(),
                   ),
                 );
               }
-            ) ,
+            ): Center(
+          child: Container(
+            child: Text('Cannot Find User Details', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 27, color: Colors.white),),
+          ),
+        ),
       // Center(
       //     child: Container(
       //       child: Text('Fetching User Data..',style: TextStyle(color:Colors.white, fontWeight: FontWeight.bold, fontSize: 21),),

@@ -42,7 +42,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       });
     });
     _googleSignIn.signInSilently();
-    checkUser();
+    // checkUser();
   }
 
   _saveDeviceToken() async {

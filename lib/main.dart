@@ -34,8 +34,8 @@ Future<void> main() async {
       sound: true
   );
 
-  MpesaFlutterPlugin.setConsumerKey("Gj8dUdJGNGnhwbUx5zxH2cYikNWNemiN");
-  MpesaFlutterPlugin.setConsumerSecret("TV9H0k2wE3ndLEMw");
+  MpesaFlutterPlugin.setConsumerKey("evQhlaB47dO5RXfy7pIFGjUodHUNxwiW");
+  MpesaFlutterPlugin.setConsumerSecret("dz9WXJAx7ykroPoK");
 
   await flutterLocalNotificationsPlugin
       .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()

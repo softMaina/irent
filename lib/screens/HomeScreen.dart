@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:irent/screens/MyRents.dart';
 import 'package:irent/widgets/CircularProgress.dart';
 import 'package:transparent_image/transparent_image.dart';
+import 'package:flutter_countdown_timer/flutter_countdown_timer.dart';
 
 import 'CatalogueScreen.dart';
 
@@ -14,7 +15,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   CollectionReference posts = FirebaseFirestore.instance.collection("products");
-
+  int endTime = DateTime.now().millisecondsSinceEpoch + 1000 * 30;
   final Stream<QuerySnapshot> _productsStream =
       FirebaseFirestore.instance.collection('products').limit(4).snapshots();
 
@@ -117,7 +118,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       fontSize: 20.0,
                                       fontWeight: FontWeight.bold)),
                               Text(
-                                '£ ${price}',
+                                'ksh ${price}',
                                 style: TextStyle(color: Colors.blueAccent, fontSize: 16, fontWeight: FontWeight.bold),
                               )
                             ],
@@ -130,7 +131,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       )
                     ],
-                  ))
+                  )),
+              Padding(padding: EdgeInsets.all(0), child: CountdownTimer(
+                endTime: endTime,
+              ),,)
             ],
           ),
         ),

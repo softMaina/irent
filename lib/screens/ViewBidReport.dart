@@ -101,6 +101,7 @@ class _ViewBidReportState extends State<ViewBidReport> {
         );
         markAsUnAvailable(category_id, post_id);
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        Navigator.pop(context);
 
       }).catchError((error) {
         final snackBar = SnackBar(

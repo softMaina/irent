@@ -72,8 +72,8 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
 
 
   bidItem() async {
-    bool userExists = checkUser();
-    if (this.bid_price == null && userExists) {
+    // bool userExists = checkUser();
+    if (this.bid_price == null) {
       final snackBar = SnackBar(
         backgroundColor: Colors.redAccent,
         content: Text('Please Complete Profile And Enter Bid Price'),
@@ -147,14 +147,16 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
                   child: Container(
                       decoration: BoxDecoration(
                           border: Border.all(
-                              color: Theme.of(context).backgroundColor)),
+                              color: Theme.of(context).backgroundColor)
+
+                      ),
                       width: MediaQuery.of(context).size.width * 0.9,
-                      height: MediaQuery.of(context).size.width * 1.5,
+                      height: MediaQuery.of(context).size.width * 1.7,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Container(
-                            height: MediaQuery.of(context).size.height * 0.4,
+                            height: MediaQuery.of(context).size.height * 0.35,
                             margin: EdgeInsets.all(10),
                             decoration: BoxDecoration(
                                 border: Border.all(color: Colors.blueAccent)),
@@ -170,7 +172,7 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
                             ),
                           ),
                           Container(
-                            margin: EdgeInsets.all(15),
+                            margin: EdgeInsets.all(9),
                             child: Row(
                               children: [
                                 Text(''),
