@@ -15,7 +15,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   CollectionReference posts = FirebaseFirestore.instance.collection("products");
-  int endTime = DateTime.now().millisecondsSinceEpoch + 1000 * 30;
+  int endTime = DateTime.now().millisecondsSinceEpoch + 10000 * 300;
   final Stream<QuerySnapshot> _productsStream =
       FirebaseFirestore.instance.collection('products').limit(4).snapshots();
 
@@ -134,7 +134,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   )),
               Padding(padding: EdgeInsets.all(0), child: CountdownTimer(
                 endTime: endTime,
-              ),,)
+              ),)
             ],
           ),
         ),
